@@ -13,9 +13,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: const Center(
-        child: ClockWidget()
-      ),
+      backgroundColor: const Color(0x9A1C5500),
+      leading: const Center(child: ClockWidget()),
       leadingWidth: 250,
       title: Text(title),
       centerTitle: true,

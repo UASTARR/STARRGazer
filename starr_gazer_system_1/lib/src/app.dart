@@ -3,9 +3,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'sample_feature/sample_item_details_view.dart';
-import 'flight_data/flight_data_view.dart';
-import 'settings/settings_controller.dart';
-import 'settings/settings_view.dart';
+import 'features/flight_data_screen/flight_data_screen_view.dart';
+import 'features/settings/settings_controller.dart';
+import 'features/settings/settings_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
       listenable: settingsController,
       builder: (BuildContext context, Widget? child) {
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           // Providing a restorationScopeId allows the Navigator built by the
           // MaterialApp to restore the navigation stack when a user leaves and
           // returns to the app after it has been killed while running in the
@@ -71,9 +72,9 @@ class MyApp extends StatelessWidget {
                     return SettingsView(controller: settingsController);
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
-                  case FlightDataView.routeName:
+                  case FlightDataScreenView.routeName:
                   default:
-                    return const FlightDataView();
+                    return const FlightDataScreenView();
                 }
               },
             );

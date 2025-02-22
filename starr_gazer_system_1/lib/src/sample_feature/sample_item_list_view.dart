@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:starr_gazer_system_1/src/custom_app_bar/custom_app_bar.dart';
 
-import '../settings/settings_view.dart';
+import '../features/settings/settings_view.dart';
 import 'sample_item.dart';
 import 'sample_item_details_view.dart';
 
@@ -18,8 +19,22 @@ class SampleItemListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sample Items'),
+      // appBar: AppBar(
+      //   title: const Text('Sample Items'),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.settings),
+      //       onPressed: () {
+      //         // Navigate to the settings page. If the user leaves and returns
+      //         // to the app after it has been killed while running in the
+      //         // background, the navigation stack is restored.
+      //         Navigator.restorablePushNamed(context, SettingsView.routeName);
+      //       },
+      //     ),
+      //   ],
+      // ),
+      appBar: CustomAppBar(
+        title: 'Sample Items',
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
