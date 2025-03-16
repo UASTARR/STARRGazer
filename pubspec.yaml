@@ -12,10 +12,11 @@ dependencies:
   flutter:
     sdk: flutter
   
-  sqflite: ^2.3.0
+  sqflite_common_ffi: ^2.3.5
+  mbtiles: ^0.4.2
+  sqflite: ^2.4.2
   path_provider: ^2.1.2
   path: ^1.8.3
-  sqflite_common_ffi: ^2.3.4+4
   flutter_map: ^8.1.0
   latlong2: ^0.9.1
   location: ^8.0.0
