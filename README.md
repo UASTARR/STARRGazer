@@ -21,13 +21,10 @@
   Limitations:
   - The MBTiles file must be accessed through the system file path (not from assets).
   - Currently, only `.txt` files with simple latitude,longitude formats are supported.
-  - MarkerLayer is commented out but can be enabled to display individual points.
   - Currently, only displays one path of a 'gps'
-  - Does not show the 'live' display of the 'rocket'
-  - Does not have a marker for the start and end postion of the rocket
   - Does not give directions to the landing site
   - Does not have a legend
   - Currently if the gps cordinates are outside the map there is a grey zone
-  - Currently has hardcoded parameters that only work for edmonton and it's surronding area
+
 
   
