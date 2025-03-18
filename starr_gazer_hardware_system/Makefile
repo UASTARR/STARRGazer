@@ -12,14 +12,15 @@ all: $(BUILD_DIR)/$(TARGET)
 clean:
 	rm -r build/*
 
-init:
+$(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(BUILD_DIR)/$(TARGET): $(BUILD_DIR)/main.o $(BUILD_DIR)/camera.o 
+$(BUILD_DIR)/$(TARGET): $(BUILD_DIR)/main.o  $(BUILD_DIR)/camera.o 
 	$(CXX) $^ $(LDFLAGS) -o $@  
 
-$(BUILD_DIR)/main.o: $(SRC_DIR)/main.cpp $(SRC_DIR)/camera.hpp
+$(BUILD_DIR)/main.o: $(SRC_DIR)/main.cpp | $(SRC_DIR)/camera.hpp $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ -c $< 
 
-$(BUILD_DIR)/camera.o: $(SRC_DIR)/camera.cpp $(SRC_DIR)/camera.hpp
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(SRC_DIR)/%.hpp $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ -c $< 
+
