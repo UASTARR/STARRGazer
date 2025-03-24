@@ -1,0 +1,6 @@
+[submodule "starr_gazer_hardware_system/3rdParty/CppGPIO"]
+	path = starr_gazer_hardware_system/3rdParty/CppGPIO
+	url = https://github.com/JoachimSchurig/CppGPIO.git
+[submodule "starr_gazer_hardware_system/3rdParty/spidev-lib"]
+	path = starr_gazer_hardware_system/3rdParty/spidev-lib
+	url = https://github.com/milekium/spidev-lib.git

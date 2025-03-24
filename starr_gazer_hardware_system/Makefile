@@ -3,8 +3,8 @@ SRC_DIR := src
 BUILD_DIR := build
 
 CXX := g++
-CXXFLAGS := -Wall -Werror -Wpedantic  $(shell pkg-config --cflags opencv4)
-LDFLAGS := $(shell pkg-config --libs opencv4)
+CXXFLAGS := -std=c++14 -Wall -Werror -Wpedantic  $(shell pkg-config --cflags opencv4) -I3rdParty/CppGPIO/include -I3rdParty/spidev-lib/src
+LDFLAGS := $(shell pkg-config --libs opencv4) -L3rdParty/CppGPIO -l:libcppgpio.a -L3rdParty/spidev-lib -l:libspidev.a
 
 MAIN := $(SRC_DIR)/main.cpp
 
@@ -13,11 +13,12 @@ all: $(BUILD_DIR)/$(TARGET)
 
 clean:
 	rm -r build/*
+	rm 3rdParty/CppGPIO/libcppgpio.* 3rdParty/spidev-lib/libspidev.a
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(BUILD_DIR)/$(TARGET): $(BUILD_DIR)/main.o  $(BUILD_DIR)/camera.o 
+$(BUILD_DIR)/$(TARGET): $(BUILD_DIR)/main.o  $(BUILD_DIR)/camera.o | 3rdParty/CppGPIO/libcppgpio.a 3rdParty/spidev-lib/libspidev.a
 	$(CXX) $^ $(LDFLAGS) -o $@  
 
 $(BUILD_DIR)/main.o: $(SRC_DIR)/${MAIN} | $(SRC_DIR)/camera.hpp $(BUILD_DIR)
@@ -26,3 +27,9 @@ $(BUILD_DIR)/main.o: $(SRC_DIR)/${MAIN} | $(SRC_DIR)/camera.hpp $(BUILD_DIR)
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(SRC_DIR)/%.hpp $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ -c $< 
 
+# Dependencies
+3rdParty/CppGPIO/libcppgpio.a:
+	make -C 3rdParty/CppGPIO
+
+3rdParty/spidev-lib/libspidev.a:
+	$(CC) -std=c++14 -Wall -Werror -Wpedantic -o 3rdParty/spidev-lib/libspidev.a -c 3rdParty/spidev-lib/src/spidev_lib++.cc
