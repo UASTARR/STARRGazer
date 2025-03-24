@@ -4,7 +4,7 @@
 # Compiled Object files
 *.slo
 *.lo
-*.o
+**.o
 *.obj
 
 # Precompiled Headers
@@ -34,3 +34,4 @@
 # other
 build/
 compile_commands.json
+**.depend
