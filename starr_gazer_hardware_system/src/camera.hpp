@@ -15,8 +15,8 @@ class GimbalCamera
 public:
     GimbalCamera(int id);
     ~GimbalCamera();
-    Mat getFrame();
-    vector<int> getProp();
+    std::tuple<Array, Shape, cv::Mat> getFrame(std::tuple<int, int> size = {1920, 1080});
+        vector<int> getProp();
     void writeFrame(Mat frame);
 
 private:
