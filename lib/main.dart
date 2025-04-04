@@ -28,7 +28,7 @@ class OfflineMapScreenState extends State<OfflineMapScreen> {
   double _maxZoom = 18.0;
   Timer? _fileMonitorTimer;
 
-  String filePath = "C:/Users/School/VS_Code_Projects/live_map_display/assets/fake_cord_data.txt";
+  String filePath = "assets/fake_cord_data.txt";
   String? _lastFileContent; // Stores last read file content
 
   @override
@@ -52,11 +52,11 @@ class OfflineMapScreenState extends State<OfflineMapScreen> {
 
   Future<void> _initializeTileProvider() async {
     _tileProvider = MbTilesTileProvider.fromPath(
-        path: 'C:/Users/School/VS_Code_Projects/live_map_display/assets/Edmonton.mbtiles');
+        path: 'assets/Edmonton.mbtiles');
   }
 
   Future<void> getBounds() async {
-    String mbtilesPath = "C:/Users/School/VS_Code_Projects/live_map_display/assets/Edmonton.mbtiles";
+    String mbtilesPath = "assets/Edmonton.mbtiles";
     databaseFactory = databaseFactoryFfi;
     var database = await openDatabase(mbtilesPath);
 

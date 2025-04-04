@@ -1,12 +1,12 @@
 # This is a generated file; do not edit or check into version control.
-location=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\location-8.0.0\\
-location_web=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\location_web-6.0.0\\
-path_provider=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider-2.1.5\\
-path_provider_android=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_android-2.2.16\\
-path_provider_foundation=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_foundation-2.4.1\\
-path_provider_linux=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_linux-2.2.1\\
-path_provider_windows=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_windows-2.3.0\\
-sqflite=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\sqflite-2.4.2\\
-sqflite_android=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\sqflite_android-2.4.1\\
-sqflite_darwin=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\sqflite_darwin-2.4.2\\
-sqlite3_flutter_libs=C:\\Users\\School\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\sqlite3_flutter_libs-0.5.31\\
+location=/home/uastarr/.pub-cache/hosted/pub.dev/location-8.0.0/
+location_web=/home/uastarr/.pub-cache/hosted/pub.dev/location_web-6.0.0/
+path_provider=/home/uastarr/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
+path_provider_android=/home/uastarr/.pub-cache/hosted/pub.dev/path_provider_android-2.2.16/
+path_provider_foundation=/home/uastarr/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.1/
+path_provider_linux=/home/uastarr/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+path_provider_windows=/home/uastarr/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+sqflite=/home/uastarr/.pub-cache/hosted/pub.dev/sqflite-2.4.2/
+sqflite_android=/home/uastarr/.pub-cache/hosted/pub.dev/sqflite_android-2.4.1/
+sqflite_darwin=/home/uastarr/.pub-cache/hosted/pub.dev/sqflite_darwin-2.4.2/
+sqlite3_flutter_libs=/home/uastarr/.pub-cache/hosted/pub.dev/sqlite3_flutter_libs-0.5.31/
