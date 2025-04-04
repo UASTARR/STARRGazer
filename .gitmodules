@@ -4,3 +4,6 @@
 [submodule "starr_gazer_hardware_system/3rdParty/spidev-lib"]
 	path = starr_gazer_hardware_system/3rdParty/spidev-lib
 	url = https://github.com/milekium/spidev-lib.git
+[submodule "starr_gazer_hardware_system/3rdParty/onnxruntime"]
+	path = starr_gazer_hardware_system/3rdParty/onnxruntime
+	url = https://github.com/microsoft/onnxruntime.git

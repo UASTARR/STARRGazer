@@ -27,12 +27,12 @@ GimbalCamera::~GimbalCamera()
     cv::destroyAllWindows();
 }
 
-std::tuple<Array, Shape, cv::Mat> GimbalCamera::getFrame(std::tuple<int, int> size = {1920, 1080})
+std::tuple<Array, Shape, cv::Mat> GimbalCamera::getFrame(std::tuple<int, int> size)
 {
     Mat image;
     cap >> image;
-    std::cout << "Channels: " << frame.channels() << std::endl;
-    std::cout << "Type: " << frame.type() << std::endl;
+    std::cout << "Channels: " << image.channels() << std::endl;
+    std::cout << "Type: " << image.type() << std::endl;
     assert(!image.empty() && image.channels() == 3);
     cv::resize(image, image, {get<0>(size), get<1>(size)});
     Shape shape = {1, image.channels(), image.rows, image.cols};

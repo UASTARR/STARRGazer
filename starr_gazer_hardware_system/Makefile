@@ -3,8 +3,8 @@ SRC_DIR := src
 BUILD_DIR := build
 
 CXX := g++
-CXXFLAGS := -std=c++14 -Wall -Werror -Wpedantic  $(shell pkg-config --cflags opencv4) $(shell pkg-config --cflags libonnxruntime ) -I3rdParty/CppGPIO/include -I3rdParty/spidev-lib/src
-LDFLAGS := $(shell pkg-config --libs opencv4) $(shell pkg-config --libs libonnxruntime) -L3rdParty/CppGPIO -l:libcppgpio.a -L3rdParty/spidev-lib -l:libspidev.a
+CXXFLAGS := -std=c++17 -Wall   $(shell pkg-config --cflags opencv4 libonnxruntime) -I3rdParty/CppGPIO/include -I3rdParty/spidev-lib/src 
+LDFLAGS := $(shell pkg-config --libs opencv4 libonnxruntime) -L3rdParty/CppGPIO -l:libcppgpio.a -L3rdParty/spidev-lib -l:libspidev.a
 
 
 .PHONY: all clean

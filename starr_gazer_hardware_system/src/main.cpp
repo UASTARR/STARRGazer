@@ -2,8 +2,6 @@
 #include "camera.hpp"
 #include <onnxruntime_cxx_api.h>
 
-using Array = std::vector<float>;
-using Shape = std::vector<long>;
 
 /*
  * This code was inspired by an implementation from:
@@ -11,7 +9,13 @@ using Shape = std::vector<long>;
  * Author: Shahriar Rezghi
  */
 
-std::pair<Array, Shape, cv::Mat> process_image(Ort::Session &session, Array &array, Shape shape, cv::Mat &frame)
+typedef struct Image {
+	Array array;
+	Shape shape;
+	cv::Mat mat;
+} Image;
+
+Image process_image(Ort::Session &session, Array &array, Shape shape, cv::Mat &frame)
 {
   auto memory_info = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
   auto input = Ort::Value::CreateTensor<float>(
