@@ -108,6 +108,7 @@ Here's a blank template to get started. To avoid retyping too much info, do a se
 
 Enviornment
 - Ubuntu
+- Python 3.12
 
 You will need git to clone the repo
 * git
@@ -227,8 +228,8 @@ Project Link: [https://github.com/UASTARR/STARRGazer](https://github.com/UASTARR
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-<!-- Accessed 2025-04-25 -->
-* [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
+* [Best-README-Template](https://github.com/othneildrew/Best-README-Template) <!-- Accessed 2025-04-25 -->
+* [nginx-rtmp-module](https://github.com/arut/nginx-rtmp-module) <!-- Accessed 2025-04-26 -->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
