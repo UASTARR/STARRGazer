@@ -11,7 +11,6 @@ def start_stream():
     Start the webcam stream using ffmpeg and send it to the RTMP server.
     """
     source = int(input("Enter the source (1 for webcam, 2 for file): "))
-    source = 2
     if source == 1:
         # Webcam stream
         cmd = [
