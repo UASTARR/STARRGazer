@@ -1,8 +1,7 @@
-name: starr_gazer_system_1
-description: "A new Flutter project."
+name: live_map_display
+description: "An offline map"
 
-# Prevent accidental publishing to pub.dev.
-publish_to: 'none'
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
 
@@ -12,13 +11,27 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   flutter_localizations:
     sdk: flutter
+
+  sqflite_common_ffi: ^2.3.5
+  mbtiles: ^0.4.2
+  sqflite: ^2.4.2
+  path_provider: ^2.1.2
+  path: ^1.8.3
+  flutter_map: ^8.1.0
+  latlong2: ^0.9.1
+  location: ^8.0.0
+  cupertino_icons: ^1.0.8
+  flutter_map_mbtiles: ^1.0.4
+  flutter_libserialport: ^0.5.0
+  file_picker: ^10.1.7
+  signals_slots: ^1.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^4.0.0
 
 flutter:
@@ -26,7 +39,5 @@ flutter:
 
   # Enable generation of localized Strings from arb files.
   generate: true
-
   assets:
-    # Add assets from the images directory to the application.
-    - assets/images/
+    - assets/Edmonton.mbtiles
