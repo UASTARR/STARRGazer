@@ -2,6 +2,38 @@
 #include <thread>
 #include <iostream>
 
+<<<<<<< HEAD
+=======
+// GimbalCamera::GimbalCamera(int id, bool sendrtp)
+// {
+//     string source = "nvarguscamerasrc sensor-id=" + to_string(id) +
+//                     " ! nvvidconv ! tee name=t ! ";
+                    
+//     source += "queue ! video/x-raw,format=BGRx ! videoconvert ! video/x-raw,format=BGR ! appsink t.";
+//     if (sendrtp)
+//     {
+//         source += "queue ! x264enc bitrate=2000 speed-preset=ultrafast tune=zerolatency ! h264parse ! rtph264pay ! udpsink host=127.0.0.1 port=5000";
+//     }
+
+
+//     cap.open(source, cv::CAP_GSTREAMER);
+//     cap.set(cv::CAP_PROP_CONVERT_RGB, true);
+//     if (!cap.isOpened())
+//     {
+//         cerr << "Error: Unable to open camera" << endl;
+//         exit(1);
+//     }
+//     // std::cout << cv::getBuildInformation() << std::endl;
+//     vector<int> prop = getProp();
+//     std::cout << "This is the properties: " << prop[0] << prop[1] << prop[2] << std::endl;
+//     // writer.open("output.mp4", cv::VideoWriter::fourcc('M', 'P', '4', 'V'), prop[2], cv::Size(prop[0], prop[1]));
+//     // if (!writer.isOpened())
+//     // {
+//     //     cerr << "Error: Unable to open video writer" << endl;
+//     //     exit(1);
+//     // }
+// }
+>>>>>>> e0d4a56 (Fixed bug: greyscale removed and not working RTP code)
 
 GimbalCamera::GimbalCamera(int id, bool sendrtp)
 {
