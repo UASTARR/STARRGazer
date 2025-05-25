@@ -30,6 +30,10 @@ void GimbalMotor::step() {
   gimbalStepPin.set_ratio(0);
 }
 
+void GimbalMotor::setRatio(int ratio) {
+  gimbalStepPin.set_ratio(ratio);
+}
+
 void GimbalMotor::turn(int angle) {
   // TODO: do the math to calculate how many steps to do 
   // TODO: do the math to calculate how fast and long i should enable pwm for

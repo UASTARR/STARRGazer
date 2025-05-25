@@ -3,6 +3,7 @@
 #include <iostream>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 // GimbalCamera::GimbalCamera(int id, bool sendrtp)
 // {
@@ -34,6 +35,8 @@
 //     // }
 // }
 >>>>>>> e0d4a56 (Fixed bug: greyscale removed and not working RTP code)
+=======
+>>>>>>> e2ff686 (fix: backup for reflash)
 
 GimbalCamera::GimbalCamera(int id, bool sendrtp)
 {

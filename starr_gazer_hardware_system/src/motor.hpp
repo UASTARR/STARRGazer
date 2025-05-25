@@ -18,6 +18,7 @@ public:
   void disable();
   void setDirection(GimbalMotorDirection dir);
   void step();
+  void setRatio(int ratio);
   void turn(int angle);
 
 private:
