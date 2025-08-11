@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Offline MBTiles Map + Serial UI</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+      .app {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .top {
+        display: flex;
+        flex: 1 1 auto;
+      }
+      #map {
+        flex-basis: 75%;
+        height: calc(100vh - 20vh);
+      }
+      .side {
+        flex-basis: 25%;
+        padding: 8px;
+        box-sizing: border-box;
+        height: calc(100vh - 20vh);
+        overflow: auto;
+        border-left: 1px solid #ddd;
+      }
+      .bottom {
+        height: 20vh;
+        border-top: 1px solid #ddd;
+        padding: 8px;
+        box-sizing: border-box;
+        overflow: auto;
+      }
+
+      .port-item {
+        cursor: pointer;
+        padding: 6px;
+        border: 1px solid #eee;
+        margin-bottom: 6px;
+      }
+      .port-item.selected {
+        background: #efefef;
+      }
+
+      label,
+      button {
+        display: block;
+        margin: 6px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="top">
+        <div class="map-container" style="flex: 1; position: relative">
+          <h1 style="margin: 10px">STARRGazer</h1>
+          <div id="map"></div>
+        </div>
+        <div
+          class="side"
+          style="
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+          "
+        >
+          <!-- Serial Connection Section -->
+          <div
+            id="serial-controls"
+            style="
+              margin-bottom: 20px;
+              border-bottom: 1px solid #ccc;
+              padding-bottom: 15px;
+              margin-right: 20px;
+            "
+          >
+            <h3>Serial Connection</h3>
+
+            <!-- Ports and Baud Rate on same line -->
+            <div
+              style="
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                margin-bottom: 10px;
+              "
+            >
+              <label for="portSelect">Port:</label>
+              <select id="portSelect" style="flex: 1">
+                <option value="">-- Select Port --</option>
+              </select>
+
+              <label for="baudSelect">Baud:</label>
+              <select id="baudSelect" style="width: 100px">
+                <option value="9600">9600</option>
+                <option value="19200">19200</option>
+                <option value="38400">38400</option>
+                <option value="57600">57600</option>
+                <option value="115200" selected>115200</option>
+              </select>
+            </div>
+
+            <!-- Connect and Disconnect on same line -->
+            <div style="display: flex; gap: 10px">
+              <button id="connect" style="flex: 1">Connect</button>
+              <button id="disconnect" style="flex: 1">Disconnect</button>
+            </div>
+          </div>
+
+          <!-- Parsed Data Section -->
+          <div id="serial-data">
+            <h3>Parsed Data</h3>
+            <table style="width: 100%; border-collapse: collapse">
+              <tbody>
+                <tr>
+                  <td>Latitude:</td>
+                  <td id="lat">--</td>
+                </tr>
+                <tr>
+                  <td>Longitude:</td>
+                  <td id="lon">--</td>
+                </tr>
+                <tr>
+                  <td>Altitude (m):</td>
+                  <td id="alt">--</td>
+                </tr>
+                <tr>
+                  <td>Ground Speed (m/s):</td>
+                  <td id="gs">--</td>
+                </tr>
+                <tr>
+                  <td>Vertical Speed (m/s):</td>
+                  <td id="vs">--</td>
+                </tr>
+                <tr>
+                  <td>Pressure (hPa):</td>
+                  <td id="pressure">--</td>
+                </tr>
+                <tr>
+                  <td>Roll (°):</td>
+                  <td id="roll">--</td>
+                </tr>
+                <tr>
+                  <td>Pitch (°):</td>
+                  <td id="pitch">--</td>
+                </tr>
+                <tr>
+                  <td>Yaw (°):</td>
+                  <td id="yaw">--</td>
+                </tr>
+                <tr>
+                  <td>Acceleration X (m/s²):</td>
+                  <td id="accX">--</td>
+                </tr>
+                <tr>
+                  <td>Acceleration Y (m/s²):</td>
+                  <td id="accY">--</td>
+                </tr>
+                <tr>
+                  <td>Acceleration Z (m/s²):</td>
+                  <td id="accZ">--</td>
+                </tr>
+                <tr>
+                  <td>Strain Gauge (units):</td>
+                  <td id="strain">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="bottom">
+        <h3>Log</h3>
+        <pre id="log"></pre>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+      const socket = io();
+
+      // initialize map
+
+      document.addEventListener("DOMContentLoaded", function () {
+        var defaultLat = 47.9876571657164;
+        var defaultLon = -81.84886222782406;
+        var defaultZoom = 15;
+        var map = L.map("map").setView([defaultLat, defaultLon], defaultZoom);
+        L.tileLayer("/tiles/{z}/{x}/{y}.png", {
+          maxZoom: 17,
+          minZoom: 0,
+          tms: false,
+        }).addTo(map);
+
+        marker = L.marker([defaultLat, defaultLon]).addTo(map);
+
+        pathLine = L.polyline(pathCoords, { color: "red" }).addTo(map);
+      });
+
+      // ports
+      // Populate baud rates (optional if static)
+      const baudRates = [9600, 19200, 38400, 57600, 115200];
+      const baudSelect = document.getElementById("baudSelect");
+
+      // Fetch available serial ports (this depends on your backend API)
+      async function fetchPorts() {
+        const res = await fetch("/ports");
+        const j = await res.json();
+        const portSelect = document.getElementById("portSelect");
+        const ids = await fetch("/ids");
+        portSelect.innerHTML = '<option value="">-- Select Port --</option>';
+        j.ports.forEach((p) => {
+          // Display p
+          console.log("Available port:", p);
+          const opt = document.createElement("option");
+          opt.value = p;
+          opt.textContent = p;
+          portSelect.appendChild(opt);
+        });
+      }
+      fetchPorts();
+
+      // Update data from parsed serial feed
+      function updateParsedData(data) {
+        document.getElementById("time").textContent = data.timestamp || "--";
+        document.getElementById("lat").textContent = data.lat || "--";
+        document.getElementById("lon").textContent = data.lon || "--";
+        document.getElementById("alt").textContent = data.alt || "--";
+        document.getElementById("gs").textContent = data.hspeed || "--";
+        document.getElementById("vs").textContent = data.vspeed || "--";
+        document.getElementById("pressure").textContent = data.pressure || "--";
+        document.getElementById("roll").textContent = data.roll || "--";
+        document.getElementById("pitch").textContent = data.pitch || "--";
+        document.getElementById("yaw").textContent = data.yaw || "--";
+        document.getElementById("accX").textContent = data.xacc || "--";
+        document.getElementById("accY").textContent = data.yacc || "--";
+        document.getElementById("accZ").textContent = data.zacc || "--";
+        document.getElementById("strain").textContent = convertStrainGauge(
+          data.strain
+        );
+
+        const newPoint = [data.lat, data.lat];
+        pathCoords.push(newPoint);
+        pathLine.setLatLngs(pathCoords);
+
+        marker.setLatLng([data.lat, data.lon]);
+        map.panTo([data.lat, data.lon]);
+      }
+
+      // Convert strain gauge raw data to readable format
+      function convertStrainGauge(raw) {
+        if (raw === undefined || raw === null) return "--";
+        // Example: assuming raw ADC counts from a 24-bit ADC
+        const maxADC = 8388607; // for 24-bit signed
+        const strainValue = (raw / maxADC) * 1000; // example scaling to microstrain
+        return strainValue.toFixed(2) + " µε";
+      }
+
+      document.getElementById("connect").onclick = () => {
+        const portSelect = document.getElementById("portSelect");
+        const baudSelect = document.getElementById("baudSelect");
+
+        const port = portSelect.value;
+        const baud = baudSelect.value || "115200";
+
+        if (!port) {
+          alert("Please select a serial port first.");
+          return;
+        }
+
+        socket.emit("start_serial", { port, baudrate: baud });
+      };
+
+      document.getElementById("disconnect").onclick = () => {
+        socket.emit("stop_serial");
+      };
+
+      const log = document.getElementById("log");
+
+      socket.on("serial_data", (data) => {
+        log.textContent = JSON.stringify(data) + "\n" + log.textContent;
+        updateParsedData(data);
+      });
+
+      socket.on("serial_started", (d) => {
+        log.textContent =
+          "[started] " + JSON.stringify(d) + "\n" + log.textContent;
+      });
+
+      socket.on("serial_stopped", () => {
+        log.textContent = "[stopped]\n" + log.textContent;
+      });
+    </script>
+  </body>
+</html>

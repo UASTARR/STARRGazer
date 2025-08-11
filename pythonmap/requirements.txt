@@ -1,0 +1,8 @@
+flask
+folium
+pyserial
+pyubx2
+sqlite3
+flask-socketio
+threading
+pyubx2
