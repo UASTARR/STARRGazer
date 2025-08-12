@@ -73,9 +73,11 @@ def handle_start_serial(data):
     baud = int(data.get('baudrate', SERIAL_BAUDRATE))
     global serial_reader
     # stop existing
-    if serial_reader and serial_reader.is_alive():
-        serial_reader.stop()
-    serial_reader = SerialReader(port=port, baudrate=baud)
+    if serial_reader is not None:
+        if serial_reader.is_alive():
+            serial_reader.stop()
+    print(port, baud)
+    serial_reader = SerialReader(port=port, baudrate=baud, socketio=socketio)
     serial_reader.start()
     emit('serial_started', {'port': port, 'baudrate': baud})
 

@@ -2,8 +2,9 @@ import threading
 import time
 import os
 import serial
-from datatypes import template, ids
+from datatypes import ids
 import pyubx2
+from datetime import datetime
 
 SERIAL_BAUDRATE = 115200
 SERIAL_RECONNECT_DELAY = 3.0
@@ -19,6 +20,20 @@ class SerialReader(threading.Thread):
         self._socketio = socketio
         self._save_buffer = []
 
+        date_str = datetime.now().strftime("%Y_%m_%d")
+        base_filename = f"{date_str}.txt"
+        self.savepath = os.path.join("records", base_filename)
+
+        # Ensure uniqueness by adding _0, _1, etc.
+        counter = 0
+        while os.path.exists(self.savepath):
+            self.savepath = os.path.join(
+                "records", f"{date_str}_{counter}.txt")
+            counter += 1
+
+        print(f"Saving to: {self.savepath}")
+        os.makedirs('records', exist_ok=True)
+
     def set_socketio(self, socketio):
         """Set the SocketIO instance to emit messages."""
         self._socketio = socketio
@@ -27,10 +42,10 @@ class SerialReader(threading.Thread):
         if self.port is None:
             return False
         try:
+            self._ser = serial.Serial(self.port, self.baudrate, timeout=1)
             self._save_thread = threading.Thread(
                 target=self.save_data, daemon=True)
             self._save_thread.start()
-            self._ser = serial.Serial(self.port, self.baudrate, timeout=1)
             print(f"Connected to serial port {self.port} @ {self.baudrate}")
             return True
         except Exception as e:
@@ -52,11 +67,12 @@ class SerialReader(threading.Thread):
                     text = line.decode('utf-8', errors='replace').strip()
                 except Exception:
                     text = repr(line)
+                self._save_buffer.append(text)
                 parsed = self.parse_line(text)
+                # print(parsed)
                 # emit to clients
                 self._socketio.emit('serial_data', parsed,
-                                    namespace="/", broadcast=True)
-                self._save_buffer.append(parsed)
+                                    namespace="/")
             except Exception as e:
                 print('Serial read error:', e)
                 # on error, close and try reconnect
@@ -88,19 +104,26 @@ class SerialReader(threading.Thread):
         if not line:
             return {}
 
-        header = line[0:1]
-        sensor_id = line[1:2]
-        timestamp = line[2:6]
-        data = line[6:header[0] + 6]
+        line = line.split(',')
+        header = line[0]
+        sensor_id = line[1]
+        timestamp = line[2]
+        data = line[3:]
+        # print(f"Raw line: {line}")
         try:
-            sensor_id = int.from_bytes(sensor_id, 'big')
-            timestamp = int.from_bytes(timestamp, 'big')
-            data = data.decode('utf-8', errors='replace')
+            # Convert binary string fields to integers safely
+            header = int(header) if header else 0
+            sensor_id = int(sensor_id) if sensor_id else 0
+            timestamp = float(timestamp) if timestamp else 0
+            for i in range(len(data)):
+                data[i] = float(data[i]) if data[i] else 0
+            # print(
+                # f"Parsed header: {header}, sensor_id: {sensor_id}, timestamp: {timestamp}, data: {data}")
         except Exception as e:
             print(f"Error parsing line: {e}")
             return {}
 
-        if sensor_id not in ids:
+        if sensor_id not in ids.values():
             print(f"Unknown sensor ID: {sensor_id}")
             return {}
 
@@ -108,35 +131,43 @@ class SerialReader(threading.Thread):
             return {
                 "timestamp": timestamp,
                 "ids": sensor_id,
-                "temperature": float(data)
+                "temperature": data[0],
+                "pressure": data[1]
             }
         elif sensor_id == ids['acceleration']:
-            values = list(map(float, data.split(',')))
             return {
                 "timestamp": timestamp,
                 "ids": sensor_id,
-                "acceleration": values
+                "accelerationx": data[0],
+                "accelerationy": data[1],
+                "accelerationz": data[2],
+
             }
         elif sensor_id == ids['gyroscope']:
-            values = list(map(float, data.split(',')))
             return {
                 "timestamp": timestamp,
                 "ids": sensor_id,
-                "gyroscope": values
+                "gyroscopex": data[0],
+                "gyroscopey": data[1],
+                "gyroscopez": data[2],
             }
         elif sensor_id == ids['magnetometer']:
-            values = list(map(float, data.split(',')))
             return {
                 "timestamp": timestamp,
                 "ids": sensor_id,
-                "magnetometer": values
+                "magnetometerx": data[0],
+                "magnetometery": data[1],
+                "magnetometerz": data[2],
+
             }
         elif sensor_id == ids['quaternion']:
-            values = list(map(float, data.split(',')))
             return {
                 "timestamp": timestamp,
                 "ids": sensor_id,
-                "quaternion": values
+                "quaternionx": data[0],
+                "quaterniony": data[1],
+                "quaternionz": data[2],
+                "quaternionw": data[3],
             }
         elif sensor_id == ids['gps']:
             try:
@@ -162,22 +193,6 @@ class SerialReader(threading.Thread):
                         "gpsfix": parsed_data.fixType,
                         "nsats": parsed_data.numSV,
                     }
-                elif parsed_data.msgID == "VTG":
-                    return {
-                        "timestamp": timestamp,
-                        "ids": sensor_id,
-                        "hspeed": parsed_data.spdOverGrndKmph,
-                        "heading": parsed_data.cogTrue,
-                    }
-                elif parsed_data.msgID == "RMC":
-                    return {
-                        "timestamp": timestamp,
-                        "ids": sensor_id,
-                        "lat": parsed_data.lat,
-                        "lon": parsed_data.lon,
-                        "hspeed": parsed_data.spdOverGrndKmph,
-                        "heading": parsed_data.cogTrue,
-                    }
                 else:
                     print(f"Unhandled NMEA message type: {parsed_data.msgID}")
                     return {}
@@ -196,15 +211,11 @@ class SerialReader(threading.Thread):
 
     def save_data(self):
         """Save the buffered data to a file or database."""
-        path = os.path.join('records', f'serial_data_{time.time()}.txt')
-        os.makedirs('records', exist_ok=True)
         try:
             while self._ser and self._ser.is_open:
                 if self._save_buffer:
                     entry = self._save_buffer.pop(0)
-                    with open(path, 'a') as f:
-                        entry_str = ', '.join(
-                            f'{k}={v}' for k, v in entry.items())
-                        f.write(entry_str + '\n')
+                    with open(self.savepath, 'a') as f:
+                        f.write(entry + '\n')
         except Exception as e:
             print(f"Failed to save serial data: {e}")

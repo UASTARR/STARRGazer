@@ -3,9 +3,6 @@ template = {
     "lat": float,
     "lon": float,
     "alt": float,
-    "hspeed": float,
-    "vspeed": float,
-    "heading": float,
     "gpsfix": float,
     "nsats": float,
     "quaternion": list[float],  # [w, x, y, z]
