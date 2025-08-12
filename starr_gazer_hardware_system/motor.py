@@ -18,7 +18,6 @@ class GimbalMotor:
         GPIO.setup(enable, GPIO.OUT, initial=GPIO.HIGH)
 
         self.step_pin = GPIO.PWM(step, 10)  # 1kHz Frequency
-        self.step_pin.ChangeDutyCycle(50)
         self.dir_pin = direction
         self.enable_pin = enable
         self._lock = threading.Lock()
@@ -83,9 +82,9 @@ class GimbalMotor:
     def move(self, axis: float):
         MAX_FREQ = 800
         if np.abs(axis) < 0.01:
-            self.stop_pwm()
             self.set_freq(1)
             self.set_dir(0)
+            self.stop_pwm()
         else:
             self.start_pwm()
             if axis < 0:
