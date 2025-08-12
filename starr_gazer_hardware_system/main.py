@@ -38,6 +38,7 @@ def io_thread():
             for event in pg.event.get():
                 if event.type == pg.JOYAXISMOTION:
                     print(f"Axis {event.axis}: {event.value}")
+                    print(f"Running {motor.running}")
                 if event.type == pg.JOYBUTTONUP and event.button == 0:
                     print("Exitting program on trigger press")
                     raise KeyboardInterrupt

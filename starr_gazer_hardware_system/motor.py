@@ -81,8 +81,8 @@ class GimbalMotor:
                 self.start_pwm()
                 if self.running:
                     self.set_freq(axis*MAX_FREQ+1)
-                    if axis < 0:
-                        self.set_dir(1)
+                    # if axis < 0:
+                    #     self.set_dir(1)
                     else:
                         self.set_dir(0)
         except Exception as e:
