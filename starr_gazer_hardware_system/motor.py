@@ -87,12 +87,13 @@ class GimbalMotor:
             self.stop_pwm()
         elif abs_axis > 0.01:
             self.start_pwm()
-            if axis < 0:
-                self.set_freq(round(axis*MAX_FREQ)+1)
-                self.set_dir(0)
-            else:
-                self.set_freq(round(axis*MAX_FREQ)+1)
-                self.set_dir(0)
+            if self.running:
+                if axis < 0:
+                    self.set_freq(round(axis*MAX_FREQ)+1)
+                    self.set_dir(0)
+                else:
+                    self.set_freq(round(axis*MAX_FREQ)+1)
+                    self.set_dir(0)
 
     def run(self):
         with self._lock:
