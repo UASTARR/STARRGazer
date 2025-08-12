@@ -26,8 +26,10 @@ class GimbalMotor:
         self._thread = threading.Thread(target=self.run())
 
     def start(self):
-        self.thread_running = True
-        self._thread.start()
+        with self._lock:
+            if not self.thread_running:
+                self.thread_running = True
+                self._thread.start()
 
     def set_dir(self, direction: int):
         """
