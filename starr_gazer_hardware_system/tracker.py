@@ -1,6 +1,8 @@
 import time
+import numpy as np
 
 CENTER = [0, 0]
+MAX_FREQ = 800
 
 
 class Tracker:
@@ -42,4 +44,36 @@ class Tracker:
             + self.Kd[1] * derivative[1],
         ]
 
-        # TBD control the motor (duty cycle must be within 1-99 inclusive)
+        if motor_speed[0] > MAX_FREQ:
+            motor_speed[0] = MAX_FREQ 
+        elif motor_speed[0] < -MAX_FREQ:
+            motor_speed[0] = -MAX_FREQ
+
+        if motor_speed[0] > 1:
+            self.motor_x.start_pwm()
+            self.motor_x.set_freq(motor_speed[0])
+            self.motor_x.set_dir(0)
+        elif motor_speed[0] < -1:
+            self.motor_x.start_pwm()
+            self.motor_x.set_freq(-motor_speed[0])
+            self.motor_x.set_dir(1)
+        else:
+            self.motor_x.stop_pwm()
+
+        if motor_speed[1] > MAX_FREQ:
+            motor_speed[1] = MAX_FREQ 
+        elif motor_speed[1] < -MAX_FREQ:
+            motor_speed[1] = -MAX_FREQ
+
+        if motor_speed[1] > 1:
+            self.motor_y.start_pwm()
+            self.motor_y.set_freq(motor_speed[1])
+            self.motor_y.set_dir(0)
+        elif motor_speed[1] < -1:
+            self.motor_y.start_pwm()
+            self.motor_y.set_freq(-motor_speed[1])
+            self.motor_y.set_dir(1)
+        else:
+            self.motor_y.stop_pwm()
+
+        

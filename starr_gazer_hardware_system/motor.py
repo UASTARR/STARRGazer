@@ -60,7 +60,6 @@ class GimbalMotor:
         """
         if not self.running:
             self.step_pin.start(duty_cycle)
-            time.sleep(1e-3)  # sleep for 1 microsecond
             self.running = True
 
     def stop_pwm(self):
@@ -69,7 +68,6 @@ class GimbalMotor:
         """
         if self.running:
             self.step_pin.stop()
-            time.sleep(1e-3)  # sleep for 1 microsecond
             self.running = False
 
     def move(self, axis: float):
