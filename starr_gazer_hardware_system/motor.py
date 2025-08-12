@@ -23,7 +23,7 @@ class GimbalMotor:
         self.running = False
         self.thread_running = False
         self._thread = threading.Thread(target=self.run())
-        self._lock = threading.Lock()
+        self.lock = threading.Lock()
 
     def start(self):
         self.thread_running = True
@@ -93,7 +93,7 @@ class GimbalMotor:
                 self.set_dir(0)
 
     def run(self):
-        with self._lock:
+        with self.lock:
             while self.thread_running:
                 self.start_pwm()
                 try:
@@ -104,7 +104,7 @@ class GimbalMotor:
             self.stop_pwm()
 
     def stop(self):
-        with self._lock:
+        with self.lock:
             if self.thread_running:
                 self.thread_running = False
 
