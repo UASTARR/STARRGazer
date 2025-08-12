@@ -71,7 +71,7 @@ class GimbalMotor:
             self.running = False
 
     def move(self, axis: float):
-        MAX_FREQ = 5000
+        MAX_FREQ = 2500
         try:
             if np.abs(axis) < 0.15:
                 self.stop_pwm()
