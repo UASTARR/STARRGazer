@@ -76,9 +76,13 @@ class GimbalMotor:
         MAX_FREQ = 800
         try:
             if np.abs(axis) < 0.1:
-                self.stop_pwm()
+                if self.running:
+                    print("stopping")
+                    self.stop_pwm()
             else:
-                self.start_pwm()
+                if not self.running:
+                    print("starting")
+                    self.start_pwm()
                 if self.running:
                     self.set_freq(axis*MAX_FREQ+1)
                     # if axis < 0:
