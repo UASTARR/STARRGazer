@@ -20,10 +20,10 @@ class GimbalMotor:
         self.step_pin = GPIO.PWM(step, 10)  # 1kHz Frequency
         self.dir_pin = direction
         self.enable_pin = enable
+        self._lock = threading.Lock()
         self.running = False
         self.thread_running = False
         self._thread = threading.Thread(target=self.run())
-        self.lock = threading.Lock()
 
     def start(self):
         self.thread_running = True
@@ -93,7 +93,7 @@ class GimbalMotor:
                 self.set_dir(0)
 
     def run(self):
-        with self.lock:
+        with self._lock:
             while self.thread_running:
                 self.start_pwm()
                 try:
@@ -104,7 +104,7 @@ class GimbalMotor:
             self.stop_pwm()
 
     def stop(self):
-        with self.lock:
+        with self._lock:
             if self.thread_running:
                 self.thread_running = False
 
