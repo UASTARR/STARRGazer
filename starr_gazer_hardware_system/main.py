@@ -7,13 +7,22 @@ Date: 2025-06-02
 import time
 
 import RPi.GPIO as GPIO
+import pygame as pg
 
 from motor import GimbalMotor
 
 # no lock needed since an operation on this is guaranteed to set it false
 RUNNING = True
 
-
+def get_movement(axis: float) -> (float, int):
+    MAX_FREQ = 800
+    if np.abs(axis) < 0.01:
+        return (0, 0)
+    else:
+        if axis < 0:
+            return (axis*MAX_FREQ, 1)
+        else:
+            return (axis*MAX_FREQ, 0)
 # TODO: Add multithreading
 def io_thread():
     # I/O Setup
@@ -21,21 +30,32 @@ def io_thread():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setwarnings(False)
 
+    pygame.init()
+    pygame.joystick.init()
+
+    if pygame.joystick.get_count() == 0:
+        raise RuntimeError("No Joystick Detected. Connect the Logitech Extreme 3D Pro and retry")
+
+    js = pg.joystick.Joystick(0)
+    js.init()
+
     motor = GimbalMotor(32, 33, 38)  # example pins change later
-    motor.set_dir(GPIO.LOW)
     motor.set_enable(GPIO.LOW)
-    motor.set_freq(250)
+
+    # motor.start()
     try:
-        print("Moving motor ccw for half a second")
-        motor.run()
-        time.sleep(0.5)
-        print("Pausing motor for half a second")
-        motor.stop()
-        time.sleep(0.5)
-        print("Reversing motor for half a second")
-        motor.set_dir(GPIO.HIGH)
-        motor.run()
-        time.sleep(0.5)
+        while True:
+            for event in pg.event.get():
+                if event.type == pg.JOYAXISMOTION:
+                    print(f"Axis {event.axis}: {event.value}")
+                if event.type == pg.JOYBUTTONUP and event.button == 0:
+                    print("Exitting program on trigger press")
+                    raise KeyboardInterrupt
+            x_axis = js.get_axis(2)
+            freq, direction = get_movement(x_axis)
+            motor.set_freq(freq)
+            motor.set_dir(direction)
+
     except KeyboardInterrupt:
         pass
     finally:

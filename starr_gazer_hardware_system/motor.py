@@ -5,11 +5,10 @@ Date: 2025-06-02
 """
 
 import time
-
+import threading
 import RPi.GPIO as GPIO
 
-
-class GimbalMotor:
+class GimbalMotor(threading.Thread):
 
     def __init__(self, step: int, direction: int, enable: int):
         # EVERYTHING IS ACTIVE LOW
@@ -17,9 +16,16 @@ class GimbalMotor:
         GPIO.setup(direction, GPIO.OUT, initial=GPIO.HIGH)
         GPIO.setup(enable, GPIO.OUT, initial=GPIO.HIGH)
 
-        self.step_pin = GPIO.PWM(step, 250)  # 1kHz Frequency
+        self.step_pin = GPIO.PWM(step, 0)  # 1kHz Frequency
         self.dir_pin = direction
         self.enable_pin = enable
+        self.running = False
+        self.thread_running = False
+        self._lock = threading.Lock()
+
+    def start(self):
+        self.thread_running = True
+        self._thread.start()
 
     def set_dir(self, direction: int):
         """
@@ -53,14 +59,38 @@ class GimbalMotor:
         time.sleep(1e-6)  # sleep for 1 microsecond
         self.step_pin.stop()
 
-    def run(self, duty_cycle: int = 50):
+    def start_pwm(self, duty_cycle: int = 50):
         """
         Runs the motor at a given duty cycle
         """
-        self.step_pin.start(duty_cycle)
+        if not self.running:
+            self.running = True
+            self.step_pin.start(duty_cycle)
 
-    def stop(self):
+    def stop_pwm(self):
         """
         Stops a currently running motor
         """
-        self.step_pin.stop()
+        if self.running:
+            self.running = False
+            self.step_pin.stop()
+
+    def run(self):
+        with self._lock:
+            while self.thread_running:
+                self.start_pwm()
+                try:
+                    pass
+                except KeyboardInterrupt as e:
+                    self.stop_pwm()
+                    raise e 
+            self.stop_pwm()
+
+    def stop(self):
+        with self._lock:
+            if self.thread_running:
+                self.thread_running = False
+
+        
+
+
