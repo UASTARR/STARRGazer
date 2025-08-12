@@ -21,9 +21,9 @@ def get_movement(axis: float) -> (float, int):
         return (0, 0)
     else:
         if axis < 0:
-            return (axis*MAX_FREQ, 1)
+            return (axis*MAX_FREQ+1, 1)
         else:
-            return (axis*MAX_FREQ, 0)
+            return (axis*MAX_FREQ+1, 0)
 # TODO: Add multithreading
 def io_thread():
     # I/O Setup
