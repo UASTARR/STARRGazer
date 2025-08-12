@@ -88,6 +88,7 @@ class GimbalMotor:
                         self.set_dir(0)
         except Exception as e:
             print(f"Running: {self.running}")
+            print(f"axis: {axis}")
             raise e
 
         
