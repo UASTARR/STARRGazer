@@ -33,7 +33,7 @@ def io_thread():
     motor = GimbalMotor(32, 33, 38)  # example pins change later
     motor.set_enable(GPIO.LOW)
 
-    # motor.start()
+    motor.start()
     try:
         while True:
             for event in pg.event.get():
