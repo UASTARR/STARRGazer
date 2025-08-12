@@ -6,34 +6,25 @@ Date: 2025-06-02
 
 import time
 
-import RPi.GPIO as GPIO
 import pygame as pg
+import RPi.GPIO as GPIO
 
 from motor import GimbalMotor
 
-# no lock needed since an operation on this is guaranteed to set it false
-RUNNING = True
+JOYSTICK = True
 
-# TODO: Add multithreading
-def io_thread():
-    # I/O Setup
-    print(f"Setting up motor for {GPIO.model}")
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setwarnings(False)
 
+def joystick(motor_x, motor_y):
     pg.init()
     pg.joystick.init()
 
     if pg.joystick.get_count() == 0:
-        raise RuntimeError("No Joystick Detected. Connect the Logitech Extreme 3D Pro and retry")
+        raise RuntimeError(
+            "No Joystick Detected. Connect the Logitech Extreme 3D Pro and retry"
+        )
 
     js = pg.joystick.Joystick(0)
     js.init()
-
-    motor_x = GimbalMotor(33, 13, 37)
-    motor_x.set_enable(GPIO.LOW)
-    motor_y = GimbalMotor(15, 11, 38)
-    motor_y.set_enable(GPIO.LOW)
 
     try:
         while True:
@@ -62,9 +53,20 @@ def io_thread():
 
 
 def main():
-    print("Starting up io thread")
-    io_thread()
-    print("Exiting io thread")
+    print("Starting up IO")
+    # I/O Setup
+    print(f"Setting up motor for {GPIO.model}")
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setwarnings(False)
+
+    motor_x = GimbalMotor(33, 13, 37)
+    motor_x.set_enable(GPIO.LOW)
+    motor_y = GimbalMotor(15, 11, 38)
+    motor_y.set_enable(GPIO.LOW)
+
+    if JOYSTICK:
+        joystick(motor_x, motor_y)
+    print("Finishing IO")
 
 
 if __name__ == "__main__":
