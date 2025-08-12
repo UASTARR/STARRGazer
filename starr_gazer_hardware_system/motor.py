@@ -9,7 +9,7 @@ import threading
 import RPi.GPIO as GPIO
 import numpy as np
 
-class GimbalMotor(threading.Thread):
+class GimbalMotor:
 
     def __init__(self, step: int, direction: int, enable: int):
         # EVERYTHING IS ACTIVE LOW
@@ -22,6 +22,7 @@ class GimbalMotor(threading.Thread):
         self.enable_pin = enable
         self.running = False
         self.thread_running = False
+        self._thread = threading.Thread(target=self.run())
         self._lock = threading.Lock()
 
     def start(self):
