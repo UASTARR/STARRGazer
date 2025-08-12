@@ -16,7 +16,7 @@ class GimbalMotor(threading.Thread):
         GPIO.setup(direction, GPIO.OUT, initial=GPIO.HIGH)
         GPIO.setup(enable, GPIO.OUT, initial=GPIO.HIGH)
 
-        self.step_pin = GPIO.PWM(step, 0)  # 1kHz Frequency
+        self.step_pin = GPIO.PWM(step, 10)  # 1kHz Frequency
         self.dir_pin = direction
         self.enable_pin = enable
         self.running = False

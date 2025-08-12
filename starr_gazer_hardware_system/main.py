@@ -30,10 +30,10 @@ def io_thread():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setwarnings(False)
 
-    pygame.init()
-    pygame.joystick.init()
+    pg.init()
+    pg.joystick.init()
 
-    if pygame.joystick.get_count() == 0:
+    if pg.joystick.get_count() == 0:
         raise RuntimeError("No Joystick Detected. Connect the Logitech Extreme 3D Pro and retry")
 
     js = pg.joystick.Joystick(0)
