@@ -30,9 +30,9 @@ def io_thread():
     js = pg.joystick.Joystick(0)
     js.init()
 
-    motor_x = GimbalMotor(33, 13, 38)
+    motor_x = GimbalMotor(33, 13, 37)
     motor_x.set_enable(GPIO.LOW)
-    motor_y = GimbalMotor(32, 11, 39)
+    motor_y = GimbalMotor(15, 11, 38)
     motor_y.set_enable(GPIO.LOW)
 
     try:
