@@ -8,22 +8,12 @@ import time
 
 import RPi.GPIO as GPIO
 import pygame as pg
-import numpy as np
 
 from motor import GimbalMotor
 
 # no lock needed since an operation on this is guaranteed to set it false
 RUNNING = True
 
-def get_movement(axis: float) -> (float, int):
-    MAX_FREQ = 800
-    if np.abs(axis) < 0.01:
-        return (0, 0)
-    else:
-        if axis < 0:
-            return (axis*MAX_FREQ+10, 1)
-        else:
-            return (axis*MAX_FREQ+10, 0)
 # TODO: Add multithreading
 def io_thread():
     # I/O Setup
@@ -53,9 +43,7 @@ def io_thread():
                     print("Exitting program on trigger press")
                     raise KeyboardInterrupt
             x_axis = js.get_axis(2)
-            freq, direction = get_movement(x_axis)
-            motor.set_freq(freq)
-            motor.set_dir(direction)
+            motor.move(x_axis)
 
     except KeyboardInterrupt:
         pass

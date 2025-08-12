@@ -7,6 +7,7 @@ Date: 2025-06-02
 import time
 import threading
 import RPi.GPIO as GPIO
+import numpy as np
 
 class GimbalMotor(threading.Thread):
 
@@ -45,7 +46,7 @@ class GimbalMotor(threading.Thread):
         """
         self.step_pin.ChangeDutyCycle(duty_cycle)
 
-    def set_freq(self, freq: int):
+    def set_freq(self, freq: float):
         """
         Sets the duty cycle of the step signal
         """
@@ -74,6 +75,20 @@ class GimbalMotor(threading.Thread):
         if self.running:
             self.running = False
             self.step_pin.stop()
+
+    def move(self, axis: float):
+        MAX_FREQ = 800
+        if np.abs(axis) < 0.01:
+            self.set_freq(1)
+            self.set_dir(0)
+            return (1, 0)
+        else:
+            if axis < 0:
+                self.set_freq(axis*MAX_FREQ+1)
+                self.set_dir(0)
+            else:
+                self.set_freq(axis*MAX_FREQ+1)
+                self.set_dir(0)
 
     def run(self):
         with self._lock:
