@@ -79,10 +79,11 @@ class GimbalMotor(threading.Thread):
     def move(self, axis: float):
         MAX_FREQ = 800
         if np.abs(axis) < 0.01:
+            self.stop_pwm()
             self.set_freq(1)
             self.set_dir(0)
-            return (1, 0)
         else:
+            self.start_pwm()
             if axis < 0:
                 self.set_freq(axis*MAX_FREQ+1)
                 self.set_dir(0)
