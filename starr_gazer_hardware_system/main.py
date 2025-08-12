@@ -33,7 +33,6 @@ def io_thread():
     motor = GimbalMotor(32, 33, 38)  # example pins change later
     motor.set_enable(GPIO.LOW)
 
-    motor.start()
     try:
         while True:
             for event in pg.event.get():
@@ -49,7 +48,7 @@ def io_thread():
         pass
     finally:
         print("Motor stopping")
-        motor.stop()
+        motor.stop_pwm()
         try:
             GPIO.cleanup()
         except OSError:  # For some reason cleanup gives us an os error

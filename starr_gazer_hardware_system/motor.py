@@ -20,16 +20,7 @@ class GimbalMotor:
         self.step_pin = GPIO.PWM(step, 10)  # 1kHz Frequency
         self.dir_pin = direction
         self.enable_pin = enable
-        self._lock = threading.Lock()
         self.running = False
-        self.thread_running = False
-        self._thread = threading.Thread(target=self.run())
-
-    def start(self):
-        with self._lock:
-            if not self.thread_running:
-                self.thread_running = True
-                self._thread.start()
 
     def set_dir(self, direction: int):
         """
@@ -98,22 +89,6 @@ class GimbalMotor:
         except Exception as e:
             print(f"Running: {self.running}")
             raise e
-
-    def run(self):
-        with self._lock:
-            while self.thread_running:
-                self.start_pwm()
-                try:
-                    pass
-                except KeyboardInterrupt as e:
-                    self.stop_pwm()
-                    raise e 
-            self.stop_pwm()
-
-    def stop(self):
-        with self._lock:
-            if self.thread_running:
-                self.thread_running = False
 
         
 
