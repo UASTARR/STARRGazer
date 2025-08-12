@@ -83,8 +83,8 @@ class GimbalMotor:
                     self.set_freq(axis*MAX_FREQ+1)
                     # if axis < 0:
                     #     self.set_dir(1)
-                    else:
-                        self.set_dir(0)
+                    # else:
+                    self.set_dir(0)
         except Exception as e:
             print(f"Running: {self.running}")
             print(f"axis: {axis}")
