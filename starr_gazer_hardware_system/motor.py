@@ -83,7 +83,11 @@ class GimbalMotor:
         MAX_FREQ = 800
         if np.abs(axis) < 0.1:
             if self.running:
-                self.set_freq(1)
+                try:
+                    self.set_freq(1)
+                except Exception as e:
+                    print(self.running)
+                    raise e
                 self.set_dir(0)
             self.stop_pwm()
         else:
