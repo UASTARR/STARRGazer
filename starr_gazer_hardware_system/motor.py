@@ -49,7 +49,7 @@ class GimbalMotor:
         """
         self.step_pin.ChangeDutyCycle(duty_cycle)
 
-    def set_freq(self, freq: int):
+    def set_freq(self, freq: float):
         """
         Sets the duty cycle of the step signal
         """
@@ -81,11 +81,12 @@ class GimbalMotor:
 
     def move(self, axis: float):
         MAX_FREQ = 800
-        if (abs_axis := np.abs(axis)) < 0.1 and self.running:
-            self.set_freq(1)
-            self.set_dir(0)
+        if np.abs(axis) < 0.1:
+            if self.running:
+                self.set_freq(1)
+                self.set_dir(0)
             self.stop_pwm()
-        elif abs_axis > 0.1:
+        else:
             self.start_pwm()
             if self.running:
                 if axis < 0:
