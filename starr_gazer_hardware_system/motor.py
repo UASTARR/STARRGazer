@@ -60,7 +60,7 @@ class GimbalMotor:
         """
         if not self.running:
             self.step_pin.start(duty_cycle)
-            time.sleep(1e-6)  # sleep for 1 microsecond
+            time.sleep(1e-3)  # sleep for 1 microsecond
             self.running = True
 
     def stop_pwm(self):
@@ -69,22 +69,21 @@ class GimbalMotor:
         """
         if self.running:
             self.step_pin.stop()
-            time.sleep(1e-6)  # sleep for 1 microsecond
+            time.sleep(1e-3)  # sleep for 1 microsecond
             self.running = False
 
     def move(self, axis: float):
         MAX_FREQ = 800
         try:
-            if np.abs(axis) < 0.9:
+            if np.abs(axis) < 0.1:
                 self.stop_pwm()
             else:
                 self.start_pwm()
                 if self.running:
+                    self.set_freq(axis*MAX_FREQ+1)
                     if axis < 0:
-                        self.set_freq(axis*MAX_FREQ+1)
                         self.set_dir(1)
                     else:
-                        self.set_freq(axis*MAX_FREQ+1)
                         self.set_dir(0)
         except Exception as e:
             print(f"Running: {self.running}")
