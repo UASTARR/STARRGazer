@@ -18,6 +18,7 @@ class GimbalMotor:
         GPIO.setup(enable, GPIO.OUT, initial=GPIO.HIGH)
 
         self.step_pin = GPIO.PWM(step, 10)  # 1kHz Frequency
+        self.step_pin.ChangeDutyCycle(50)
         self.dir_pin = direction
         self.enable_pin = enable
         self._lock = threading.Lock()
