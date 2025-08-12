@@ -67,31 +67,35 @@ class GimbalMotor:
         """
         Runs the motor at a given duty cycle
         """
-        self.step_pin.start(duty_cycle)
-        self.running = True
+        if not self.running:
+            self.step_pin.start(duty_cycle)
+            self.running = True
 
     def stop_pwm(self):
         """
         Stops a currently running motor
         """
-        self.step_pin.stop()
-        self.running = False
+        if self.running:
+            self.step_pin.stop()
+            self.running = False
 
     def move(self, axis: float):
         MAX_FREQ = 800
-        if np.abs(axis) < 0.1:
-            if self.running:
+        try:
+            if np.abs(axis) < 0.1:
                 self.stop_pwm()
-                self.running = False
-        else:
-            self.start_pwm()
-            if self.running:
-                if axis < 0:
-                    self.set_freq(axis*MAX_FREQ+1)
-                    self.set_dir(1)
-                else:
-                    self.set_freq(axis*MAX_FREQ+1)
-                    self.set_dir(0)
+            else:
+                self.start_pwm()
+                if self.running:
+                    if axis < 0:
+                        self.set_freq(axis*MAX_FREQ+1)
+                        self.set_dir(1)
+                    else:
+                        self.set_freq(axis*MAX_FREQ+1)
+                        self.set_dir(0)
+        except Exception as e:
+            print(f"Running: {self.running}")
+            raise e
 
     def run(self):
         with self._lock:
