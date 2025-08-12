@@ -1,6 +1,6 @@
 import sqlite3
 import io
-from flask import Flask, send_file, render_template, jsonify, abort
+from flask import Flask, send_file, render_template, jsonify, abort, request
 from flask_socketio import SocketIO, emit
 import serial
 import serial.tools.list_ports
@@ -61,9 +61,22 @@ def func_ids():
     return jsonify(id=ids)
 
 
+connected_clients = set()
+
+
 @socketio.on('connect')
 def handle_connect():
-    print('Client connected')
+    sid = request.sid
+    connected_clients.add(sid)
+    print(f"Client connected: {sid}")
+    emit('connected', {'sid': sid})
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    sid = request.sid
+    connected_clients.discard(sid)
+    print(f"Client disconnected: {sid}")
 
 
 @socketio.on('start_serial')
