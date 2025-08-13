@@ -29,7 +29,7 @@ class YoloModel:
         fps = 1 / (curr_time - self.prev_time) if self.prev_time else 0
 
         self.prev_time = curr_time
-        self.put_text_rect(img, f'FPS: {fps:.2f}', (10, 30), scale=0.7, bg_color=(50, 50, 50))
+        self.put_text_rect(img, f'FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
 
         cv2.imshow("DSLR Live", img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
