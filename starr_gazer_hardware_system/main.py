@@ -90,6 +90,7 @@ def main():
             else:
                 results = model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
                 result = next(results)
+                print("Position: {result.boxes.xywh[0]}")
                 img = result.plot()
 
             # Calculate FPS
