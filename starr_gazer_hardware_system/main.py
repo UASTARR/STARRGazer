@@ -15,7 +15,25 @@ from model import YoloModel
 JOYSTICK = True
 
 
-def joystick(motor_x, motor_y):
+def joystick(js, motor_x, motor_y):
+    x_axis = js.get_axis(2)
+    y_axis = js.get_axis(1)
+    motor_x.move(x_axis)
+    motor_y.move(y_axis)
+    
+
+
+def main():
+    print("Starting up IO")
+    print(f"Setting up motor for {GPIO.model}")
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setwarnings(False)
+
+    motor_x = GimbalMotor(33, 13, 37)
+    motor_x.set_enable(GPIO.LOW)
+    motor_y = GimbalMotor(15, 11, 38)
+    motor_y.set_enable(GPIO.LOW)
+
     pg.init()
     pg.joystick.init()
 
@@ -50,10 +68,7 @@ def joystick(motor_x, motor_y):
                         input_mode = "joystick"
                         print("Switching to joystick mode")
             if input_mode == "joystick":
-                x_axis = js.get_axis(2)
-                y_axis = js.get_axis(1)
-                motor_x.move(x_axis)
-                motor_y.move(y_axis)
+                joystick(js, motor_x, motor_y)
             else:
                 if not (model_inf.predict()):
                     raise KeyboardInterrupt
@@ -68,22 +83,6 @@ def joystick(motor_x, motor_y):
             GPIO.cleanup()
         except OSError:  # For some reason cleanup gives us an os error
             pass
-
-
-def main():
-    print("Starting up IO")
-    # I/O Setup
-    print(f"Setting up motor for {GPIO.model}")
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setwarnings(False)
-
-    motor_x = GimbalMotor(33, 13, 37)
-    motor_x.set_enable(GPIO.LOW)
-    motor_y = GimbalMotor(15, 11, 38)
-    motor_y.set_enable(GPIO.LOW)
-
-    if JOYSTICK:
-        joystick(motor_x, motor_y)
     print("Finishing IO")
 
 
