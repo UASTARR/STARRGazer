@@ -1,4 +1,3 @@
-# Ground-Station
 
 ## Joystick Button functions (physical labels)
 - Button 2 (Thumb) - exits program

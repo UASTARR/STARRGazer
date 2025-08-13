@@ -1,0 +1,20 @@
+version = 1
+revision = 2
+requires-python = ">=3.13"
+
+[[package]]
+name = "jetson-gpio"
+version = "2.1.9"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/25/04/df3ff37ef6995a3de7dd21d835f6222660cce3c4b1332dfcff6aaf60577a/jetson_gpio-2.1.9.tar.gz", hash = "sha256:9dcdda8f89b66016c7d7e1ecb32ce2e070415b14e3ae8664577ff2e8bdea6f3b", size = 33205, upload-time = "2025-02-07T20:52:26.917Z" }
+
+[[package]]
+name = "starr-gazer-hardware-system"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "jetson-gpio" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "jetson-gpio", specifier = ">=2.1.9" }]

@@ -1,0 +1,1 @@
+gst-launch-1.0 -v udpsrc multicast-group=127.0.0.1 port=5000 caps="application/x-rtp, media=video, encoding-name=H264, payload=96" ! rtph264depay ! avdec_h264 ! autovideosink
