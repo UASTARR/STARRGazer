@@ -75,7 +75,8 @@ def main():
     prev_time = 0
 
     fourcc = cv2.VideoWriter_fourcc(*'X264')
-    writer = cv2.VideoWriter(f'saved_footage/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.mkv', fourcc, 30.0, (cap.get(3), cap.get(4)))
+    frame_size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    writer = cv2.VideoWriter(f'saved_footage/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.mkv', fourcc, 30.0, frame_size)
 
     try:
         while True:
