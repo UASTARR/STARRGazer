@@ -10,6 +10,7 @@ import pygame as pg
 import RPi.GPIO as GPIO
 
 from motor import GimbalMotor
+from model import YoloModel
 
 JOYSTICK = True
 
@@ -26,6 +27,10 @@ def joystick(motor_x, motor_y):
     js = pg.joystick.Joystick(0)
     js.init()
 
+    input_mode = "joystick"
+    print(f"Input mode: {input_mode}")
+    model_inf = YoloModel()
+
     try:
         while True:
             for event in pg.event.get():
@@ -35,10 +40,23 @@ def joystick(motor_x, motor_y):
                 if event.type == pg.JOYBUTTONUP and event.button == 0:
                     print("Exitting program on trigger press")
                     raise KeyboardInterrupt
-            x_axis = js.get_axis(2)
-            y_axis = js.get_axis(1)
-            motor_x.move(x_axis)
-            motor_y.move(y_axis)
+                
+                # Switch input mode
+                if event.type == pg.JOYBUTTONUP and event.button == 7:
+                    if input_mode == "joystick":
+                        input_mode = "keyboard"
+                        print("Switching to keyboard mode")
+                    else:
+                        input_mode = "joystick"
+                        print("Switching to joystick mode")
+            if input_mode == "joystick":
+                x_axis = js.get_axis(2)
+                y_axis = js.get_axis(1)
+                motor_x.move(x_axis)
+                motor_y.move(y_axis)
+            else:
+                if not (model_inf.predict()):
+                    raise KeyboardInterrupt
 
     except KeyboardInterrupt:
         pass
