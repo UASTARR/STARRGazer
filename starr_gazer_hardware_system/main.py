@@ -10,6 +10,7 @@ import pygame as pg
 import RPi.GPIO as GPIO
 
 from motor import GimbalMotor
+from tracker import Tracker
 from ultralytics import YOLO
 import cv2
 
@@ -59,7 +60,7 @@ def main():
     
     # Initialize the YOLO model
     model = YOLO("yolo11s.pt")
-
+    tracker = Tracker(motor_x, motor_y)
     # Starts the display
     cap = cv2.VideoCapture(f'/dev/video{0}', cv2.CAP_V4L2)
     prev_time = 0
@@ -92,7 +93,9 @@ def main():
                 result = next(results)
                 boxes = result.boxes
                 if boxes.id is not None:
-                    print(f"ID: {boxes.id[0]} Position: {boxes.xywh[0]}")
+                    pos = boxes.xywhn[0].cpu().tolist()[:2]
+                    print(f"ID: {boxes.id[0]} Position: {pos}")
+
                     img = result.plot()
 
             # Calculate FPS
