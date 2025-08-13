@@ -16,7 +16,7 @@ from ultralytics import YOLO
 import cv2
 
 JOYSTICK = True
-MODEL_PATH = "yolo11s.pt"  # Path to the YOLO model file
+MODEL_PATH = "weights/multiple.engine"  # Path to the YOLO model file
 CAMERA_INDEX = 0  # Index of the camera to use, usually 0 for the first camera
 
 def put_text_rect(img, text, pos, scale=0.5, thickness=1, bg_color=(0,0,0), text_color=(255,255,255)):
