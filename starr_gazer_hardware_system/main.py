@@ -90,8 +90,9 @@ def main():
             else:
                 results = model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
                 result = next(results)
-                if result is not None:
-                    print(f"ID: {result.boxes.id[0]} Position: {result.boxes.xywh[0]}")
+                boxes = result.boxes
+                if boxes.id is not None:
+                    print(f"ID: {boxes.id[0]} Position: {boxes.xywh[0]}")
                     img = result.plot()
 
             # Calculate FPS
