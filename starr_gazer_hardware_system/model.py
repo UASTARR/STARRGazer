@@ -22,7 +22,7 @@ class YoloModel:
     def predict(self):
         et, img = self.cap.read()
         # results = model(img, imgsz=1024)  # Strip 4th channel if needed
-        results = self.model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
+        results = self.model(img, imgsz=1024, classes=[0], persist=True, stream=True)
         img = next(results).plot()
 
         curr_time = time.time()
