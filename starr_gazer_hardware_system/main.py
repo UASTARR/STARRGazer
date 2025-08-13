@@ -74,9 +74,12 @@ def main():
     cap = cv2.VideoCapture(f'/dev/video{CAMERA_INDEX}', cv2.CAP_V4L2)
     prev_time = 0
 
-    fourcc = cv2.VideoWriter_fourcc(*'X264')
+    # Video saving set up
+    fourcc = cv2.VideoWriter_fourcc(*'XVID') # or X264
     frame_size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    writer = cv2.VideoWriter(f'saved_footage/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.mkv', fourcc, 30.0, frame_size)
+    camera_fps = int(cap.get(cv2.CAP_PROP_FPS))
+    print(f"Camera FPS: {camera_fps}")
+    writer = cv2.VideoWriter(f'saved_footage/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.mkv', fourcc, camera_fps, frame_size, True)
 
     try:
         while True:
@@ -102,7 +105,10 @@ def main():
 
             et, img = cap.read()
 
-            writer.write(img)
+            # Video saving with timestamp
+            raw_frame = img.copy()
+            put_text_rect(raw_frame, f'{datetime.now()}', (10,30), 0.7, bg_color=(50, 50, 50))
+            writer.write(raw_frame)
 
             # Joystick control
             if input_mode == "joystick":
