@@ -15,6 +15,8 @@ from ultralytics import YOLO
 import cv2
 
 JOYSTICK = True
+MODEL_PATH = "yolo11s.pt"  # Path to the YOLO model file
+CAMERA_INDEX = 0  # Index of the camera to use, usually 0 for the first camera
 
 def put_text_rect(img, text, pos, scale=0.5, thickness=1, bg_color=(0,0,0), text_color=(255,255,255)):
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -59,10 +61,10 @@ def main():
     print(f"Input mode: {input_mode}")
 
     # Initialize the YOLO model
-    model = YOLO("yolo11s.pt")
+    model = YOLO(MODEL_PATH)
     tracker = Tracker(motor_x, motor_y)
     # Starts the display
-    cap = cv2.VideoCapture(f'/dev/video{0}', cv2.CAP_V4L2)
+    cap = cv2.VideoCapture(f'/dev/video{CAMERA_INDEX}', cv2.CAP_V4L2)
     prev_time = 0
 
     try:
@@ -122,7 +124,7 @@ def main():
         print("Releasing camera")
         cv2.destroyAllWindows()
         cap.release()
-        
+
         print("Motor stopping")
         motor_x.stop_pwm()
         motor_y.stop_pwm()
