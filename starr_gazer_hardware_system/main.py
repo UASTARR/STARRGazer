@@ -71,12 +71,12 @@ def main():
                 if event.type == pg.JOYAXISMOTION and input_mode == "joystick":
                     print(f"Axis {event.axis}: {event.value}")
                     print(f"Running {motor_x.running}")
-                if event.type == pg.JOYBUTTONUP and event.button == 0:
+                if event.type == pg.JOYBUTTONDOWN and event.button == 1:
                     print("Exitting program on trigger press")
                     raise KeyboardInterrupt
                 
                 # Switch input mode
-                if event.type == pg.JOYBUTTONUP and event.button == 7:
+                if event.type == pg.JOYBUTTONDOWN and event.button == 7:
                     if input_mode == "joystick":
                         input_mode = "keyboard"
                         print("Switching to keyboard mode")
@@ -113,6 +113,10 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
+        print("cleaning up joystick")
+        for _ in pg.event.get():
+            pass
+
         print("Exiting program")
         pg.quit()
 
