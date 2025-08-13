@@ -61,7 +61,7 @@ def main():
     print(f"Input mode: {input_mode}")
 
     # Initialize the YOLO model
-    model = YOLO(MODEL_PATH)
+    model = YOLO(MODEL_PATH, task="detect")
     tracker = Tracker(motor_x, motor_y)
     # Starts the display
     cap = cv2.VideoCapture(f'/dev/video{CAMERA_INDEX}', cv2.CAP_V4L2)
