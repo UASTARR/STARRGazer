@@ -8,6 +8,7 @@ class YoloModel:
     def __init__(self, model_path="yolo11s.pt", camera_index=0):
         self.model = YOLO(model_path)
         self.cap = cv2.VideoCapture(f'/dev/video{camera_index}', cv2.CAP_V4L2)
+        self.prev_time = 0
 
     def put_text_rect(img, text, pos, scale=0.5, thickness=1, bg_color=(0,0,0), text_color=(255,255,255)):
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -25,9 +26,9 @@ class YoloModel:
         img = next(results).plot()
 
         curr_time = time.time()
-        fps = 1 / (curr_time - prev_time) if prev_time else 0
+        fps = 1 / (curr_time - self.prev_time) if self.prev_time else 0
 
-        prev_time = curr_time
+        self.prev_time = curr_time
         self.put_text_rect(img, f'FPS: {fps:.2f}', (10, 30), scale=0.7, bg_color=(50, 50, 50))
 
         cv2.imshow("DSLR Live", img)
