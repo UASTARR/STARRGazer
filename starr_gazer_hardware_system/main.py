@@ -26,14 +26,20 @@ def put_text_rect(img, text, pos, scale=0.5, thickness=1, bg_color=(0,0,0), text
     cv2.rectangle(img, (x, y - text_h - 6), (x + text_w + 4, y + 4), bg_color, -1)
     cv2.putText(img, text, (x + 2, y - 2), font, scale, text_color, thickness)
 
+def line_sep(text: str, length: int = 50, character: str = '=') -> str:
+    """
+    Returns a string with the text centered and padded with dashes.
+    """
+    if len(text) >= length:
+        return text
+    padding = (length - len(text)) // 2
+    return character * padding + text + character * padding + (character if (length - len(text)) % 2 else '')
 
 def joystick(js, motor_x, motor_y):
     x_axis = js.get_axis(2)
     y_axis = js.get_axis(1)
     motor_x.move(x_axis)
     motor_y.move(y_axis)
-
-
 
 def main():
     print("Starting up IO")
@@ -70,25 +76,30 @@ def main():
     try:
         while True:
             for event in pg.event.get():
-                if event.type == pg.JOYAXISMOTION and input_mode == "joystick":
-                    print(f"Axis {event.axis}: {event.value}")
-                    print(f"Running {motor_x.running}")
+                # Exit button
                 if event.type == pg.JOYBUTTONUP and event.button == 1:
                     print("Exitting program on trigger press")
                     raise KeyboardInterrupt
+                
+                # Joystick motion movement printing
+                if event.type == pg.JOYAXISMOTION and input_mode == "joystick":
+                    print(f"Axis {event.axis}: {event.value}")
+                    print(f"Running {motor_x.running}")
 
                 # Switch input mode
                 if event.type == pg.JOYBUTTONUP and event.button == 7:
                     if input_mode == "joystick":
-                        input_mode = "keyboard"
-                        print("Switching to keyboard mode")
+                        input_mode = "model"
+                        print(line_sep("Switching to model control mode"))
                     else:
                         input_mode = "joystick"
-                        print("Switching to joystick mode")
+                        print(line_sep("Switching to joystick mode"))
 
             et, img = cap.read()
+            # Joystick control
             if input_mode == "joystick":
                 joystick(js, motor_x, motor_y)
+            # Model control
             else:
                 results = model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
                 result = next(results)
