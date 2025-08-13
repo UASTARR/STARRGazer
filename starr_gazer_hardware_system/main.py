@@ -5,6 +5,7 @@ Date: 2025-06-02
 """
 
 import time
+from datetime import datetime
 
 import pygame as pg
 import RPi.GPIO as GPIO
@@ -73,6 +74,9 @@ def main():
     cap = cv2.VideoCapture(f'/dev/video{CAMERA_INDEX}', cv2.CAP_V4L2)
     prev_time = 0
 
+    fourcc = cv2.VideoWriter_fourcc(*'X264')
+    writer = cv2.VideoWriter(f'saved_footage/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.mkv', fourcc, 30.0, (cap.get(3), cap.get(4)))
+
     try:
         while True:
             for event in pg.event.get():
@@ -96,6 +100,9 @@ def main():
                         print(line_sep("Switching to joystick mode"))
 
             et, img = cap.read()
+
+            writer.write(img)
+
             # Joystick control
             if input_mode == "joystick":
                 joystick(js, motor_x, motor_y)
