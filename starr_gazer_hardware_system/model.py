@@ -10,7 +10,7 @@ class YoloModel:
         self.cap = cv2.VideoCapture(f'/dev/video{camera_index}', cv2.CAP_V4L2)
         self.prev_time = 0
 
-    def put_text_rect(img, text, pos, scale=0.5, thickness=1, bg_color=(0,0,0), text_color=(255,255,255)):
+    def put_text_rect(self, img, text, pos, scale=0.5, thickness=1, bg_color=(0,0,0), text_color=(255,255,255)):
         font = cv2.FONT_HERSHEY_SIMPLEX
         text_size, _ = cv2.getTextSize(text, font, scale, thickness)
         text_w, text_h = text_size
@@ -22,7 +22,8 @@ class YoloModel:
     def predict(self):
         et, img = self.cap.read()
         # results = model(img, imgsz=1024)  # Strip 4th channel if needed
-        results = self.model(img, imgsz=1024, classes=[0], persist=True, stream=True)
+        # results = self.model(img, imgsz=1024, classes=[0], stream=True)
+        results = self.model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
         img = next(results).plot()
 
         curr_time = time.time()
