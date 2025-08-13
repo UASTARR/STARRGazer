@@ -1,6 +1,6 @@
 """
 Title: Hardware System Main
-Author: Sovereign Shahid
+Authors: Sovereign Shahid, Brian Lin
 Date: 2025-06-02
 """
 
@@ -30,7 +30,7 @@ def joystick(js, motor_x, motor_y):
     y_axis = js.get_axis(1)
     motor_x.move(x_axis)
     motor_y.move(y_axis)
-    
+
 
 
 def main():
@@ -57,7 +57,7 @@ def main():
 
     input_mode = "joystick"
     print(f"Input mode: {input_mode}")
-    
+
     # Initialize the YOLO model
     model = YOLO("yolo11s.pt")
     tracker = Tracker(motor_x, motor_y)
@@ -71,12 +71,12 @@ def main():
                 if event.type == pg.JOYAXISMOTION and input_mode == "joystick":
                     print(f"Axis {event.axis}: {event.value}")
                     print(f"Running {motor_x.running}")
-                if event.type == pg.JOYBUTTONDOWN and event.button == 1:
+                if event.type == pg.JOYBUTTONUP and event.button == 1:
                     print("Exitting program on trigger press")
                     raise KeyboardInterrupt
-                
+
                 # Switch input mode
-                if event.type == pg.JOYBUTTONDOWN and event.button == 7:
+                if event.type == pg.JOYBUTTONUP and event.button == 7:
                     if input_mode == "joystick":
                         input_mode = "keyboard"
                         print("Switching to keyboard mode")
@@ -84,7 +84,6 @@ def main():
                         input_mode = "joystick"
                         print("Switching to joystick mode")
 
-            
             et, img = cap.read()
             if input_mode == "joystick":
                 joystick(js, motor_x, motor_y)
