@@ -22,7 +22,7 @@ class YoloModel:
         et, img = self.cap.read()
         # results = model(img, imgsz=1024)  # Strip 4th channel if needed
         results = self.model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
-        img = results[0].plot()
+        img = next(results).plot()
 
         curr_time = time.time()
         fps = 1 / (curr_time - prev_time) if prev_time else 0
