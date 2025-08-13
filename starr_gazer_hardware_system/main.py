@@ -67,7 +67,7 @@ def main():
     try:
         while True:
             for event in pg.event.get():
-                if event.type == pg.JOYAXISMOTION:
+                if event.type == pg.JOYAXISMOTION and input_mode == "joystick":
                     print(f"Axis {event.axis}: {event.value}")
                     print(f"Running {motor_x.running}")
                 if event.type == pg.JOYBUTTONUP and event.button == 0:
