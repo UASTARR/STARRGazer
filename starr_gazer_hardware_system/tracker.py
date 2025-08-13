@@ -1,8 +1,7 @@
 import time
 import numpy as np
 
-CENTER = [0, 0]
-MAX_FREQ = 800
+MAX_FREQ = 100
 
 
 class Tracker:
@@ -17,14 +16,13 @@ class Tracker:
         self.Kd = [1e-1, 1e-1]
         self.Ki = [1e-1, 1e-1]
 
-    def track(self, rocketPos):
+    def track(self, error):
         """
         Moves the motors based on the rocket position returned by the model
         """
         current_time = time.perf_counter()
         dt = current_time - self.previous_time
         self.previous_time = current_time
-        error = [CENTER[0] - rocketPos[0], CENTER[1] - rocketPos[1]]
         derivative = [
             (error[0] - self.previous_error[0]) / dt,
             (error[1] - self.previous_error[1]) / dt,
@@ -44,6 +42,8 @@ class Tracker:
             + self.Kd[1] * derivative[1],
         ]
 
+        print(f"Motor Speed: {motor_speed}")
+
         if motor_speed[0] > MAX_FREQ:
             motor_speed[0] = MAX_FREQ 
         elif motor_speed[0] < -MAX_FREQ:
@@ -52,11 +52,11 @@ class Tracker:
         if motor_speed[0] > 1:
             self.motor_x.start_pwm()
             self.motor_x.set_freq(motor_speed[0])
-            self.motor_x.set_dir(0)
+            self.motor_x.set_dir(1)
         elif motor_speed[0] < -1:
             self.motor_x.start_pwm()
             self.motor_x.set_freq(-motor_speed[0])
-            self.motor_x.set_dir(1)
+            self.motor_x.set_dir(0)
         else:
             self.motor_x.stop_pwm()
 
@@ -68,11 +68,11 @@ class Tracker:
         if motor_speed[1] > 1:
             self.motor_y.start_pwm()
             self.motor_y.set_freq(motor_speed[1])
-            self.motor_y.set_dir(0)
+            self.motor_y.set_dir(1)
         elif motor_speed[1] < -1:
             self.motor_y.start_pwm()
             self.motor_y.set_freq(-motor_speed[1])
-            self.motor_y.set_dir(1)
+            self.motor_y.set_dir(0)
         else:
             self.motor_y.stop_pwm()
 

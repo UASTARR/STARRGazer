@@ -95,7 +95,7 @@ def main():
                 if boxes.id is not None:
                     pos = boxes.xywhn[0].cpu().tolist()[:2]
                     print(f"ID: {boxes.id[0]} Position: {pos}")
-
+                    tracker.track([pos[0] - 0.5, pos[1] - 0.5])  # Centering the position
                     img = result.plot()
 
             # Calculate FPS
