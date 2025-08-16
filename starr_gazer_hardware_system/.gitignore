@@ -35,3 +35,9 @@
 build/
 compile_commands.json
 **.depend
+<<<<<<< HEAD
+=======
+__pycache__/
+saved_footage/*
+weights/
+>>>>>>> 7084cf9 (fixed gitignore for weights)
