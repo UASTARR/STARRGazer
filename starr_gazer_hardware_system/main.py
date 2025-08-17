@@ -109,6 +109,9 @@ def main():
                             print(line_sep("Switching to model control mode"))
                         else:
                             print(line_sep("Switching to joystick mode"))
+                            input_mode = "joystick"
+                            tracker.speed = [0,0]
+                            tracker.accel = [0,0]
                     elif event.button == 2:
                         tracker.N = [
                                 tracker.N[0] - 5,
@@ -124,7 +127,7 @@ def main():
                                 tracker.Kp[0] - 1,
                                 tracker.Kp[1] - 1
                                 ]
-                    elif event.button == 1:
+                    elif event.button == 5:
                         tracker.Kp = [
                                 tracker.Kp[0] + 1,
                                 tracker.Kp[1] + 1
@@ -181,6 +184,8 @@ def main():
                 fps = 1 / (curr_time - prev_time) if prev_time else 0
                 prev_time = curr_time
                 put_text_rect(img, f'N {tracker.N[0]} Kp: {tracker.Kp[0]} Ki: {tracker.Ki[0]}, Kd: {tracker.Kd[0]} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
+                put_text_rect(img, f'Speed: ({tracker.speed[0]:.2f}, {tracker.speed[1]:.2f}) Accel: ({tracker.accel[0]:.2f}, {tracker.accel[1]:.2f}) Max Freq: {common.MAX_FREQ:.2f}', (10, 60), 0.7, bg_color=(50, 50, 50))
+
 
                 cv2.imshow("DSLR Live", img)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
