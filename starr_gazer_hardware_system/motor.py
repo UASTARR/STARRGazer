@@ -8,6 +8,7 @@ import time
 import threading
 import RPi.GPIO as GPIO
 import numpy as np
+import common
 
 class GimbalMotor:
 
@@ -71,7 +72,6 @@ class GimbalMotor:
             self.running = False
 
     def move(self, axis: float):
-        MAX_FREQ = 1500
         try:
             if np.abs(axis) < 0.15:
                 self.stop_pwm()
@@ -79,10 +79,10 @@ class GimbalMotor:
                 self.start_pwm()
                 if self.running:
                      if axis < 0:
-                         self.set_freq(-1*axis*MAX_FREQ+1)
+                         self.set_freq(-1*axis*common.MAX_FREQ+1)
                          self.set_dir(0)
                      else:
-                         self.set_freq(axis*MAX_FREQ+1)
+                         self.set_freq(axis*common.MAX_FREQ+1)
                          self.set_dir(1)
         except Exception as e:
             print(f"Running: {self.running}")

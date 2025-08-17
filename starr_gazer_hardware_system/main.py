@@ -14,9 +14,10 @@ from motor import GimbalMotor
 from tracker import Tracker
 from ultralytics import YOLO
 import cv2
+import common
 
-JOYSTICK = True
 MODEL_PATH = "weights/multiple.engine"  # Path to the YOLO model file
+# MODEL_PATH = "yolo11s.pt"  # Path to the YOLO model file
 CAMERA_INDEX = 0  # Index of the camera to use, usually 0 for the first camera
 
 def put_text_rect(img, text, pos, scale=0.5, thickness=1, bg_color=(0,0,0), text_color=(255,255,255)):
@@ -72,14 +73,15 @@ def main():
     tracker = Tracker(motor_x, motor_y)
     # Starts the display
     cap = cv2.VideoCapture(f'/dev/video{CAMERA_INDEX}', cv2.CAP_V4L2)
-    prev_time = 0
+    if cap.isOpened():
+        prev_time = 0
 
-    # Video saving set up
-    fourcc = cv2.VideoWriter_fourcc(*'XVID') # or X264
-    frame_size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    camera_fps = int(cap.get(cv2.CAP_PROP_FPS))
-    print(f"Camera FPS: {camera_fps}")
-    writer = cv2.VideoWriter(f'saved_footage/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.mkv', fourcc, camera_fps, frame_size, True)
+        # Video saving set up
+        fourcc = cv2.VideoWriter_fourcc(*'XVID') # or X264
+        frame_size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+        camera_fps = int(cap.get(cv2.CAP_PROP_FPS))
+        print(f"Camera FPS: {camera_fps}")
+        writer = cv2.VideoWriter(f'saved_footage/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.mkv', fourcc, camera_fps, frame_size, True)
 
     try:
         while True:
@@ -90,31 +92,80 @@ def main():
                     raise KeyboardInterrupt
                 
                 # Joystick motion movement printing
-                if event.type == pg.JOYAXISMOTION and input_mode == "joystick":
-                    print(f"Axis {event.axis}: {event.value}")
-                    print(f"Running {motor_x.running}")
+                if event.type == pg.JOYAXISMOTION:
+                    if event.axis == 3:
+                        common.MAX_FREQ = (((1-event.value)/2) * 1900) + 100
+                        print(f"MAX_FREQ = {common.MAX_FREQ}")
+                        tracker.Kp = [0.75*common.MAX_FREQ, 0.75*common.MAX_FREQ]
+                        tracker.Kd = [0.50*common.MAX_FREQ, 0.50*common.MAX_FREQ]
+
+                    if input_mode == "joystick":
+                        print(f"Axis {event.axis}: {event.value}")
+                        print(f"Running {motor_x.running}")
 
                 # Switch input mode
-                if event.type == pg.JOYBUTTONUP and event.button == 7:
-                    if input_mode == "joystick":
-                        input_mode = "model"
-                        print(line_sep("Switching to model control mode"))
-                    else:
-                        input_mode = "joystick"
-                        print(line_sep("Switching to joystick mode"))
+                if event.type == pg.JOYBUTTONUP: 
+                    if event.button == 7 and cap.isOpened():
+                        if input_mode == "joystick":
+                            input_mode = "model"
+                            print(line_sep("Switching to model control mode"))
+                        else:
+                            tracker.jerk = [0,0]
+                            tracker.accel = [0,0]
+                            tracker.speed = [0,0]
+                            input_mode = "joystick"
+                            print(line_sep("Switching to joystick mode"))
+                    elif event.button == 2:
+                        tracker.Kp = [
+                                tracker.Kp[0] - 1,
+                                tracker.Kp[1] - 1
+                                ]
+                        print(f"Decreasing Kp to {tracker.Kp}")
+                    elif event.button == 3:
+                        tracker.Kp = [
+                                tracker.Kp[0] + 1,
+                                tracker.Kp[1] + 1
+                                ]
+                        print(f"Increasing Kp to {tracker.Kp}")
+                    elif event.button == 4:
+                        tracker.Kd = [
+                                tracker.Kd[0] - 1,
+                                tracker.Kd[1] - 1
+                                ]
+                        print(f"Decreasing Kd to {tracker.Kd}")
+                    elif event.button == 5:
+                        tracker.Kd = [
+                                tracker.Kd[0] + 1,
+                                tracker.Kd[1] + 1
+                                ]
+                        print(f"Increasing Kd to {tracker.Kd}")
+                    elif event.button == 10:
+                        tracker.Ki = [
+                                tracker.Ki[0] - 1,
+                                tracker.Ki[1] - 1
+                                ]
+                        print(f"Decreasing Ki to {tracker.Kd}")
+                    elif event.button == 11:
+                        tracker.Ki = [
+                                tracker.Ki[0] + 1,
+                                tracker.Ki[1] + 1
+                                ]
+                        print(f"Increasing Ki to {tracker.Kd}")
 
-            et, img = cap.read()
+            
+            if cap.isOpened():
+                et, img = cap.read()
 
-            # Video saving with timestamp
-            raw_frame = img.copy()
-            put_text_rect(raw_frame, f'{datetime.now()}', (10,30), 0.7, bg_color=(50, 50, 50))
-            writer.write(raw_frame)
+                # Video saving with timestamp
+                raw_frame = img.copy()
+                put_text_rect(raw_frame, f'{datetime.now()}', (10,30), 0.7, bg_color=(50, 50, 50))
+                writer.write(raw_frame)
 
             # Joystick control
             if input_mode == "joystick":
                 joystick(js, motor_x, motor_y)
             # Model control
-            else:
+            elif cap.isOpened():
                 results = model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
                 result = next(results)
                 boxes = result.boxes
@@ -123,17 +174,20 @@ def main():
                     print(f"ID: {boxes.id[0]} Position: {pos}")
                     tracker.track([pos[0] - 0.5, pos[1] - 0.5])  # Centering the position
                     img = result.plot()
+                else:
+                    tracker.move(tracker.speed)
 
-            # Calculate FPS
-            curr_time = time.time()
-            fps = 1 / (curr_time - prev_time) if prev_time else 0
-            prev_time = curr_time
-            put_text_rect(img, f'FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
+            if cap.isOpened():
+                # Calculate FPS
+                curr_time = time.time()
+                fps = 1 / (curr_time - prev_time) if prev_time else 0
+                prev_time = curr_time
+                put_text_rect(img, f'Kp: {tracker.Kp[0]:.2f} Ki: {tracker.Ki[0]:.2f} Kd: {tracker.Kd[0]:.2f} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
 
-            cv2.imshow("DSLR Live", img)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                print("Exiting program on 'q' key press")
-                raise KeyboardInterrupt
+                cv2.imshow("DSLR Live", img)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    print("Exiting program on 'q' key press")
+                    raise KeyboardInterrupt
 
 
     except KeyboardInterrupt:
