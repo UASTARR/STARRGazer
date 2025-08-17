@@ -70,7 +70,7 @@ def main():
 
     # Initialize the YOLO model
     model = YOLO(MODEL_PATH, task="detect")
-    tracker = Tracker(motor_x, motor_y)
+    tracker = Tracker(motor_x, motor_y, [22.3, 14.9], FOCAL_LENGTH_TODO)
     # Starts the display
     cap = cv2.VideoCapture(f'/dev/video{CAMERA_INDEX}', cv2.CAP_V4L2)
     if cap.isOpened():
@@ -96,8 +96,6 @@ def main():
                     if event.axis == 3:
                         common.MAX_FREQ = (((1-event.value)/2) * 1900) + 100
                         print(f"MAX_FREQ = {common.MAX_FREQ}")
-                        tracker.Kp = [0.75*common.MAX_FREQ, 0.75*common.MAX_FREQ]
-                        tracker.Kd = [0.50*common.MAX_FREQ, 0.50*common.MAX_FREQ]
 
                     if input_mode == "joystick":
                         print(f"Axis {event.axis}: {event.value}")
@@ -110,47 +108,17 @@ def main():
                             input_mode = "model"
                             print(line_sep("Switching to model control mode"))
                         else:
-                            tracker.jerk = [0,0]
-                            tracker.accel = [0,0]
-                            tracker.speed = [0,0]
-                            input_mode = "joystick"
                             print(line_sep("Switching to joystick mode"))
                     elif event.button == 2:
-                        tracker.Kp = [
-                                tracker.Kp[0] - 1,
-                                tracker.Kp[1] - 1
+                        common.gain = [
+                                common.gain[0] - 0.5,
+                                common.gain[1] - 0.5
                                 ]
-                        print(f"Decreasing Kp to {tracker.Kp}")
                     elif event.button == 3:
-                        tracker.Kp = [
-                                tracker.Kp[0] + 1,
-                                tracker.Kp[1] + 1
+                        common.gain = [
+                                common.gain[0] + 0.5,
+                                common.gain[1] + 0.5
                                 ]
-                        print(f"Increasing Kp to {tracker.Kp}")
-                    elif event.button == 4:
-                        tracker.Kd = [
-                                tracker.Kd[0] - 1,
-                                tracker.Kd[1] - 1
-                                ]
-                        print(f"Decreasing Kd to {tracker.Kd}")
-                    elif event.button == 5:
-                        tracker.Kd = [
-                                tracker.Kd[0] + 1,
-                                tracker.Kd[1] + 1
-                                ]
-                        print(f"Increasing Kd to {tracker.Kd}")
-                    elif event.button == 10:
-                        tracker.Ki = [
-                                tracker.Ki[0] - 1,
-                                tracker.Ki[1] - 1
-                                ]
-                        print(f"Decreasing Ki to {tracker.Kd}")
-                    elif event.button == 11:
-                        tracker.Ki = [
-                                tracker.Ki[0] + 1,
-                                tracker.Ki[1] + 1
-                                ]
-                        print(f"Increasing Ki to {tracker.Kd}")
 
             
             if cap.isOpened():
@@ -182,7 +150,7 @@ def main():
                 curr_time = time.time()
                 fps = 1 / (curr_time - prev_time) if prev_time else 0
                 prev_time = curr_time
-                put_text_rect(img, f'Kp: {tracker.Kp[0]:.2f} Ki: {tracker.Ki[0]:.2f} Kd: {tracker.Kd[0]:.2f} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
+                put_text_rect(img, f'Nx: {common.gain[0] Ny: {common.gain[1]} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
 
                 cv2.imshow("DSLR Live", img)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
