@@ -110,14 +110,44 @@ def main():
                         else:
                             print(line_sep("Switching to joystick mode"))
                     elif event.button == 2:
-                        common.GAIN = [
-                                common.GAIN[0] - 5,
-                                common.GAIN[1] - 5
+                        tracker.N = [
+                                tracker.N[0] - 5,
+                                tracker.N[1] - 5
                                 ]
                     elif event.button == 3:
-                        common.GAIN = [
-                                common.GAIN[0] + 5,
-                                common.GAIN[1] + 5
+                        tracker.N = [
+                                tracker.N[0] + 5,
+                                tracker.N[1] + 5
+                                ]
+                    elif event.button == 4:
+                        tracker.Kp = [
+                                tracker.Kp[0] - 1,
+                                tracker.Kp[1] - 1
+                                ]
+                    elif event.button == 1:
+                        tracker.Kp = [
+                                tracker.Kp[0] + 1,
+                                tracker.Kp[1] + 1
+                                ]
+                    elif event.button == 8:
+                        tracker.Ki = [
+                                tracker.Ki[0] - 1,
+                                tracker.Ki[1] - 1
+                                ]
+                    elif event.button == 9:
+                        tracker.Ki = [
+                                tracker.Ki[0] + 1,
+                                tracker.Ki[1] + 1
+                                ]
+                    elif event.button == 10:
+                        tracker.Kd = [
+                                tracker.Kd[0] - 1,
+                                tracker.Kd[1] - 1
+                                ]
+                    elif event.button == 11:
+                        tracker.Kd = [
+                                tracker.Kd[0] + 1,
+                                tracker.Kd[1] + 1
                                 ]
 
             
@@ -150,7 +180,7 @@ def main():
                 curr_time = time.time()
                 fps = 1 / (curr_time - prev_time) if prev_time else 0
                 prev_time = curr_time
-                put_text_rect(img, f'Nx: {common.GAIN[0]} Ny: {common.GAIN[1]} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
+                put_text_rect(img, f'N {tracker.N[0]} Kp: {tracker.Kp[0]} Ki: {tracker.Ki[0]}, Kd: {tracker.Kd[0]} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
 
                 cv2.imshow("DSLR Live", img)
                 if cv2.waitKey(1) & 0xFF == ord('q'):

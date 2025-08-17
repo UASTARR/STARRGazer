@@ -7,7 +7,13 @@ class Tracker:
 
     def __init__(self, motor_x, motor_y, sensor_length, focal_length):
         self.previous_time = time.perf_counter()
+        self.previous_pid = [0, 0]
         self.previous_error = [0, 0]
+        self.total_pid = [0, 0]
+        self.Kp = [1, 1]
+        self.Kd = [1, 1]
+        self.Ki = [0, 0]
+        self.N = [50, 50]
         self.motor_x = motor_x
         self.motor_y = motor_y
         self.speed = [0, 0]
@@ -21,8 +27,31 @@ class Tracker:
         ]
 
         return [
-            delta_error[0]*2*self.los_angles[0]*error[0]*common.GAIN[0],
-            delta_error[0]*2*self.los_angles[0]*error[1]*common.GAIN[1]
+            delta_error[0]*2*self.los_angles[0]*error[0]*self.N[0],
+            delta_error[0]*2*self.los_angles[0]*error[1]*self.N[1]
+        ]
+
+    def _pid(self, pid_in):
+        current_time = time.perf_counter()
+        dt = current_time - self.previous_time
+        self.previous_time = current_time
+        derivative = [
+            (pid_in[0] - self.previous_pid[0]) / dt,
+            (pid_in[1] - self.previous_pid[1]) / dt,
+        ]
+        self.total_pid = [
+            (pid_in[0] - self.previous_pid[0]) * dt,
+            (pid_in[1] - self.previous_pid[1]) * dt,
+        ]
+        self.previous_pid = pid_in
+
+        return [
+            self.Kp[0] * error[0]
+            + self.Ki[0] * self.total_error[0]
+            + self.Kd[0] * derivative[0],
+            self.Kp[1] * error[1]
+            + self.Ki[1] * self.total_error[1]
+            + self.Kd[1] * derivative[1],
         ]
 
     def move(self, accel = [0, 0]):
@@ -82,5 +111,5 @@ class Tracker:
         Moves the motors based on the rocket position returned by the model
         """
 
-        self.move(self._propnav(error))
+        self.move(self.pid(self._propnav(error)))
 
