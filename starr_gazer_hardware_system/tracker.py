@@ -11,8 +11,8 @@ class Tracker:
         self.total_error = [0, 0]
         self.motor_x = motor_x
         self.motor_y = motor_y
-        self.Kp = [0.75*common.MAX_FREQ, 0.75*common.MAX_FREQ]
-        self.Kd = [0.50*common.MAX_FREQ, 0.50*common.MAX_FREQ]
+        self.Kp = [0.90*common.MAX_FREQ, 0.90*common.MAX_FREQ]
+        self.Kd = [0.75*common.MAX_FREQ, 0.75*common.MAX_FREQ]
         self.Ki = [0, 0]
         self.speed = [0, 0]
 

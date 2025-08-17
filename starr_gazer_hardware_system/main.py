@@ -96,8 +96,8 @@ def main():
                     if event.axis == 3:
                         common.MAX_FREQ = (((1-event.value)/2) * 1900) + 100
                         print(f"MAX_FREQ = {common.MAX_FREQ}")
-                        tracker.Kp = [0.75*common.MAX_FREQ, 0.75*common.MAX_FREQ]
-                        tracker.Kd = [0.50*common.MAX_FREQ, 0.50*common.MAX_FREQ]
+                        tracker.Kp = [0.90*common.MAX_FREQ, 0.90*common.MAX_FREQ]
+                        tracker.Kd = [0.75*common.MAX_FREQ, 0.75*common.MAX_FREQ]
 
                     if input_mode == "joystick":
                         print(f"Axis {event.axis}: {event.value}")
