@@ -11,7 +11,7 @@ class Tracker:
         self.motor_x = motor_x
         self.motor_y = motor_y
         self.speed = [0, 0]
-        self.los_angles = [np.atan2(2*focal_length, sensor_length[0]),np.atan2(2*focal_length, sensor_length[1])]
+        self.los_angles = [np.arctan2(2*focal_length, sensor_length[0]),np.arctan2(2*focal_length, sensor_length[1])]
 
     def _propnav(self, error):
         delta_error = [
@@ -20,15 +20,15 @@ class Tracker:
         ]
 
         return [
-            delta_error[0]*2*self.los_angle[0]*error*common.gain[0]
-            delta_error[0]*2*self.los_angle[0]*error*common.gain[1]
+            -1*delta_error[0]*2*self.los_angles[0]*error[0]*common.GAIN[0],
+            -1*delta_error[0]*2*self.los_angles[0]*error[1]*common.GAIN[1]
         ]
 
     def move(self, accel = [0, 0]):
 
         self.speed = [
-                self.speed[0] + self.accel[0],
-                self.speed[1] + self.accel[1]
+                self.speed[0] + accel[0],
+                self.speed[1] + accel[1]
                 ]
 
         print(f"accel: {accel}")

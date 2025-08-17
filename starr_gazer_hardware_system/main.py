@@ -87,7 +87,7 @@ def main():
         while True:
             for event in pg.event.get():
                 # Exit button
-                if event.type == pg.JOYBUTTONUP and event.button == 1:
+                if event.type == pg.JOYBUTTONUP and event.button == 0:
                     print("Exitting program on trigger press")
                     raise KeyboardInterrupt
                 
@@ -103,21 +103,21 @@ def main():
 
                 # Switch input mode
                 if event.type == pg.JOYBUTTONUP: 
-                    if event.button == 7 and cap.isOpened():
+                    if event.button == 1 and cap.isOpened():
                         if input_mode == "joystick":
                             input_mode = "model"
                             print(line_sep("Switching to model control mode"))
                         else:
                             print(line_sep("Switching to joystick mode"))
                     elif event.button == 2:
-                        common.gain = [
-                                common.gain[0] - 0.5,
-                                common.gain[1] - 0.5
+                        common.GAIN = [
+                                common.GAIN[0] - 5,
+                                common.GAIN[1] - 5
                                 ]
                     elif event.button == 3:
-                        common.gain = [
-                                common.gain[0] + 0.5,
-                                common.gain[1] + 0.5
+                        common.GAIN = [
+                                common.GAIN[0] + 5,
+                                common.GAIN[1] + 5
                                 ]
 
             
@@ -140,7 +140,7 @@ def main():
                 if boxes.id is not None:
                     pos = boxes.xywhn[0].cpu().tolist()[:2]
                     print(f"ID: {boxes.id[0]} Position: {pos}")
-                    tracker.track([pos[0] - 0.5, pos[1] - 0.5])  # Centering the position
+                    tracker.track([pos[0], pos[1]])  # Centering the position
                     img = result.plot()
                 else:
                     tracker.move(tracker.speed)
@@ -150,7 +150,7 @@ def main():
                 curr_time = time.time()
                 fps = 1 / (curr_time - prev_time) if prev_time else 0
                 prev_time = curr_time
-                put_text_rect(img, f'Nx: {common.gain[0] Ny: {common.gain[1]} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
+                put_text_rect(img, f'Nx: {common.GAIN[0]} Ny: {common.GAIN[1]} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
 
                 cv2.imshow("DSLR Live", img)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
