@@ -1,2 +1,2 @@
 MAX_FREQ = 100
-GAIN = [1,1]
+GAIN = [75,75]

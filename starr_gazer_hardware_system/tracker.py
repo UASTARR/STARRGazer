@@ -14,14 +14,15 @@ class Tracker:
         self.los_angles = [np.arctan2(2*focal_length, sensor_length[0]),np.arctan2(2*focal_length, sensor_length[1])]
 
     def _propnav(self, error):
+        print(f"Position: {error})")
         delta_error = [
-            error[0] - self.previous_error[0],
-            error[1] - self.previous_error[1],
+            np.abs(error[0] - self.previous_error[0]),
+            np.abs(error[1] - self.previous_error[1])
         ]
 
         return [
-            -1*delta_error[0]*2*self.los_angles[0]*error[0]*common.GAIN[0],
-            -1*delta_error[0]*2*self.los_angles[0]*error[1]*common.GAIN[1]
+            delta_error[0]*2*self.los_angles[0]*error[0]*common.GAIN[0],
+            delta_error[0]*2*self.los_angles[0]*error[1]*common.GAIN[1]
         ]
 
     def move(self, accel = [0, 0]):

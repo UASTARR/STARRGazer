@@ -140,7 +140,7 @@ def main():
                 if boxes.id is not None:
                     pos = boxes.xywhn[0].cpu().tolist()[:2]
                     print(f"ID: {boxes.id[0]} Position: {pos}")
-                    tracker.track([pos[0], pos[1]])  # Centering the position
+                    tracker.track([2*pos[0] - 1, 2*pos[1] - 1])  # Centering the position
                     img = result.plot()
                 else:
                     tracker.move(tracker.speed)
