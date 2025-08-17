@@ -70,7 +70,7 @@ def main():
 
     # Initialize the YOLO model
     model = YOLO(MODEL_PATH, task="detect")
-    tracker = Tracker(motor_x, motor_y, [22.3, 14.9], FOCAL_LENGTH_TODO)
+    tracker = Tracker(motor_x, motor_y, [22.3, 14.9], 18) # the units for the last three numbers are in mm
     # Starts the display
     cap = cv2.VideoCapture(f'/dev/video{CAMERA_INDEX}', cv2.CAP_V4L2)
     if cap.isOpened():
