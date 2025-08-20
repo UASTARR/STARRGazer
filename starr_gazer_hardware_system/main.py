@@ -87,7 +87,7 @@ def main():
         while True:
             for event in pg.event.get():
                 # Exit button
-                if event.type == pg.JOYBUTTONUP and event.button == 1:
+                if event.type == pg.JOYBUTTONUP and event.button == 0:
                     print("Exitting program on trigger press")
                     raise KeyboardInterrupt
                 
@@ -96,16 +96,13 @@ def main():
                     if event.axis == 3:
                         common.MAX_FREQ = (((1-event.value)/2) * 1900) + 100
                         print(f"MAX_FREQ = {common.MAX_FREQ}")
-                        tracker.Kp = [0.90*common.MAX_FREQ, 0.90*common.MAX_FREQ]
-                        tracker.Kd = [0.85*common.MAX_FREQ, 0.85*common.MAX_FREQ]
-
                     if input_mode == "joystick":
                         print(f"Axis {event.axis}: {event.value}")
                         print(f"Running {motor_x.running}")
 
                 # Switch input mode
                 if event.type == pg.JOYBUTTONUP: 
-                    if event.button == 7 and cap.isOpened():
+                    if event.button == 1 and cap.isOpened():
                         if input_mode == "joystick":
                             input_mode = "model"
                             print(line_sep("Switching to model control mode"))
@@ -117,38 +114,38 @@ def main():
                             print(line_sep("Switching to joystick mode"))
                     elif event.button == 2:
                         tracker.Kp = [
-                                tracker.Kp[0] - 1,
-                                tracker.Kp[1] - 1
+                                tracker.Kp[0] - 10,
+                                tracker.Kp[1] - 10
                                 ]
                         print(f"Decreasing Kp to {tracker.Kp}")
                     elif event.button == 3:
                         tracker.Kp = [
-                                tracker.Kp[0] + 1,
-                                tracker.Kp[1] + 1
+                                tracker.Kp[0] + 10,
+                                tracker.Kp[1] + 10
                                 ]
                         print(f"Increasing Kp to {tracker.Kp}")
                     elif event.button == 4:
                         tracker.Kd = [
-                                tracker.Kd[0] - 1,
-                                tracker.Kd[1] - 1
+                                tracker.Kd[0] - 10,
+                                tracker.Kd[1] - 10
                                 ]
                         print(f"Decreasing Kd to {tracker.Kd}")
                     elif event.button == 5:
                         tracker.Kd = [
-                                tracker.Kd[0] + 1,
-                                tracker.Kd[1] + 1
+                                tracker.Kd[0] + 10,
+                                tracker.Kd[1] + 10
                                 ]
                         print(f"Increasing Kd to {tracker.Kd}")
                     elif event.button == 10:
                         tracker.Ki = [
-                                tracker.Ki[0] - 1,
-                                tracker.Ki[1] - 1
+                                tracker.Ki[0] - 10,
+                                tracker.Ki[1] - 10
                                 ]
                         print(f"Decreasing Ki to {tracker.Kd}")
                     elif event.button == 11:
                         tracker.Ki = [
-                                tracker.Ki[0] + 1,
-                                tracker.Ki[1] + 1
+                                tracker.Ki[0] + 10,
+                                tracker.Ki[1] + 10
                                 ]
                         print(f"Increasing Ki to {tracker.Kd}")
 

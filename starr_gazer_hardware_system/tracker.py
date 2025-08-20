@@ -11,9 +11,9 @@ class Tracker:
         self.total_error = [0, 0]
         self.motor_x = motor_x
         self.motor_y = motor_y
-        self.Kp = [0.90*common.MAX_FREQ, 0.90*common.MAX_FREQ]
-        self.Kd = [0.75*common.MAX_FREQ, 0.75*common.MAX_FREQ]
-        self.Ki = [0, 0]
+        self.Kp = [200, 200]
+        self.Ki = [50, 50]
+        self.Kd = [100, 100]
         self.speed = [0, 0]
 
     def _pid(self, error):
