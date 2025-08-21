@@ -9,11 +9,14 @@ from datetime import datetime
 
 import pygame as pg
 import RPi.GPIO as GPIO
+from ultralytics import YOLO
+import cv2
+import av
+from fractions import Fraction
+import numpy as np
 
 from motor import GimbalMotor
 from tracker import Tracker
-from ultralytics import YOLO
-import cv2
 import common
 
 MODEL_PATH = "weights/multiple.engine"  # Path to the YOLO model file
@@ -74,21 +77,39 @@ def main():
     # Starts the display
     cap = cv2.VideoCapture(f'/dev/video{CAMERA_INDEX}', cv2.CAP_V4L2)
     if cap.isOpened():
-        prev_time = 0
 
         # Video saving set up
-        fourcc = cv2.VideoWriter_fourcc(*'XVID') # or X264
         frame_size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
         camera_fps = int(cap.get(cv2.CAP_PROP_FPS))
-        print(f"Camera FPS: {camera_fps}")
-        writer = cv2.VideoWriter(f'saved_footage/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.mkv', fourcc, camera_fps, frame_size, True)
+        print(f"/dev/video{CAMERA_INDEX} opened successfully")
+        print(f"Camera Optimal Resolution: {frame_size}")
+        print(f"Camera Optimal FPS: {camera_fps}")
+
+        video_file_path = f'saved_footage/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.mkv'
+        # prev_time = 0
+        # fourcc = cv2.VideoWriter_fourcc(*'XVID') # or X264
+        # writer = cv2.VideoWriter(video_file_path, fourcc, camera_fps, frame_size, True)
+
+        # Create PyAV container and video stream
+        av_container = av.open(video_file_path, mode='w')
+        av_stream = av_container.add_stream('h264', rate=camera_fps)
+        av_stream.width = frame_size[0]
+        av_stream.height = frame_size[1]
+        av_stream.pix_fmt = 'yuv420p'
+
+        # Use millisecond time_base for precision
+        av_stream.codec_context.time_base = Fraction(1, 1000)
+
+        prev_time = time.perf_counter()
+        elapsed_ms = 0
+        fps = 0
 
     try:
         while True:
             for event in pg.event.get():
                 # Exit button
                 if event.type == pg.JOYBUTTONUP and event.button == 0:
-                    print("Exitting program on trigger press")
+                    print("Exiting program on trigger press")
                     raise KeyboardInterrupt
                 
                 # Joystick motion movement printing
@@ -149,18 +170,35 @@ def main():
                                 ]
                         print(f"Increasing Ki to {tracker.Kd}")
 
-            
+            # Read frame from camera and save it directly
             if cap.isOpened():
-                et, img = cap.read()
+                _, img = cap.read()
 
-                # Video saving with timestamp
-                raw_frame = img.copy()
-                put_text_rect(raw_frame, f'{datetime.now()}', (10,30), 0.7, bg_color=(50, 50, 50))
-                writer.write(raw_frame)
+                # Calculate the time since the last frame
+                now = time.perf_counter()
+                dt_ms = (now - prev_time) * 1000  # Convert to milliseconds
+                fps = 1.0 / (now - prev_time) if now != prev_time else fps
+                prev_time = now
+                elapsed_ms += dt_ms
+
+                # Convert BGR (OpenCV) frame to a VideoFrame (PyAV)
+                av_video_frame = av.VideoFrame.from_ndarray(img, format='bgr24')
+                av_video_frame.pts = int(elapsed_ms)
+                av_video_frame.time_base = av_stream.codec_context.time_base
+
+                # Encode and mux packets
+                for packet in av_stream.encode(av_video_frame):
+                    av_container.mux(packet)
+
+                # Video saving with timestamp with cv2
+                # raw_frame = img.copy()
+                # put_text_rect(raw_frame, f'{datetime.now()}', (10,30), 0.7, bg_color=(50, 50, 50))
+                # writer.write(raw_frame)
 
             # Joystick control
             if input_mode == "joystick":
                 joystick(js, motor_x, motor_y)
+
             # Model control
             elif cap.isOpened():
                 results = model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
@@ -176,9 +214,9 @@ def main():
 
             if cap.isOpened():
                 # Calculate FPS
-                curr_time = time.time()
-                fps = 1 / (curr_time - prev_time) if prev_time else 0
-                prev_time = curr_time
+                # curr_time = time.time()
+                # fps = 1 / (curr_time - prev_time) if prev_time else 0
+                # prev_time = curr_time
                 put_text_rect(img, f'Kp: {tracker.Kp[0]:.2f} Ki: {tracker.Ki[0]:.2f} Kd: {tracker.Kd[0]:.2f} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
 
                 cv2.imshow("DSLR Live", img)
@@ -190,6 +228,10 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
+        print("Motor stopping")
+        motor_x.stop_pwm()
+        motor_y.stop_pwm()
+
         print("cleaning up joystick")
         for _ in pg.event.get():
             pass
@@ -201,9 +243,12 @@ def main():
         cv2.destroyAllWindows()
         cap.release()
 
-        print("Motor stopping")
-        motor_x.stop_pwm()
-        motor_y.stop_pwm()
+        if cap.isOpened():
+            print("Releasing video container")
+            for packet in av_stream.encode(None):
+                av_container.mux(packet)
+            av_container.close()
+
         try:
             GPIO.cleanup()
         except OSError:  # For some reason cleanup gives us an os error
