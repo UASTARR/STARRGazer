@@ -27,28 +27,28 @@ def index():
     return render_template('index.html')
 
 
-def get_tile(z, x, y):
-    y_tms = (2**z - 1) - y
-    conn = sqlite3.connect(MBTILES_PATH)
-    cur = conn.cursor()
-    cur.execute(
-        "SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=?",
-        (z, x, y_tms)
-    )
-    row = cur.fetchone()
-    conn.close()
-    if row:
-        return io.BytesIO(row[0])
-    return None
+# def get_tile(z, x, y):
+#     y_tms = (2**z - 1) - y
+#     conn = sqlite3.connect(MBTILES_PATH)
+#     cur = conn.cursor()
+#     cur.execute(
+#         "SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=?",
+#         (z, x, y_tms)
+#     )
+#     row = cur.fetchone()
+#     conn.close()
+#     if row:
+#         return io.BytesIO(row[0])
+#     return None
 
 
-@app.route("/tiles/<int:z>/<int:x>/<int:y>.png")
-def tiles(z, x, y):
-    tile = get_tile(z, x, y)
-    if tile:
-        return send_file(tile, mimetype="image/png")
-    else:
-        abort(404)
+# @app.route("/tiles/<int:z>/<int:x>/<int:y>.png")
+# def tiles(z, x, y):
+#     tile = get_tile(z, x, y)
+#     if tile:
+#         return send_file(tile, mimetype="image/png")
+#     else:
+#         abort(404)
 
 
 @app.route('/ports')

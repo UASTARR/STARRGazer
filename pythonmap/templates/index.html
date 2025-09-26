@@ -256,29 +256,29 @@
       // initialize map
       let pathCoords = []; // Initialize pathCoords as an empty array
 
-      document.addEventListener("DOMContentLoaded", function () {
-        var defaultLat = 47.9876571657164;
-        var defaultLon = -81.84886222782406;
-        var defaultZoom = 15;
-        var map = L.map("map").setView([defaultLat, defaultLon], defaultZoom);
-        L.tileLayer("/tiles/{z}/{x}/{y}.png", {
-          maxZoom: 17,
-          minZoom: 0,
-          tms: false,
-        }).addTo(map);
-
-        const customIcon = L.icon({
-          iconUrl: "static/icon.png",
-          iconSize: [40, 40],
-          iconAnchor: [12, 12],
-          popupAnchor: [1, -34],
-          shadowSize: [41, 41],
-        });
-
-        L.marker([defaultLat, defaultLon], { icon: customIcon }).addTo(map);
-
-        pathLine = L.polyline(pathCoords, { color: "red" }).addTo(map);
-      });
+      // document.addEventListener("DOMContentLoaded", function () {
+      //   var defaultLat = 47.9876571657164;
+      //   var defaultLon = -81.84886222782406;
+      //   var defaultZoom = 15;
+      //   var map = L.map("map").setView([defaultLat, defaultLon], defaultZoom);
+      //   L.tileLayer("/tiles/{z}/{x}/{y}.png", {
+      //     maxZoom: 17,
+      //     minZoom: 0,
+      //     tms: false,
+      //   }).addTo(map);
+      //
+      //   const customIcon = L.icon({
+      //     iconUrl: "static/icon.png",
+      //     iconSize: [40, 40],
+      //     iconAnchor: [12, 12],
+      //     popupAnchor: [1, -34],
+      //     shadowSize: [41, 41],
+      //   });
+      //
+      //   L.marker([defaultLat, defaultLon], { icon: customIcon }).addTo(map);
+      //
+      //   pathLine = L.polyline(pathCoords, { color: "red" }).addTo(map);
+      // });
 
       // ports
       // Populate baud rates (optional if static)

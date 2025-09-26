@@ -1,0 +1,13 @@
+[project]
+name = "pythonmap"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask>=3.1.2",
+    "flask-socketio>=5.5.1",
+    "folium>=0.20.0",
+    "pyserial>=3.5",
+    "pyubx2>=1.2.57",
+]

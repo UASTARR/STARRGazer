@@ -93,7 +93,7 @@ class SerialReader(threading.Thread):
             except Exception:
                 pass
 
-    def parse_line(self, line: str):
+    def parse_line(self, line):
         # Data header (number of bytes), sensor_id (which sensor), timestamp, data.
         # header - 1 byte (how many bytes in the data)
         # sensor_id - 1 byte (which sensor sent the data)
