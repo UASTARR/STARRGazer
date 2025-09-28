@@ -54,6 +54,8 @@ def index():
 @app.route('/ports')
 def ports():
     ports = [p.device for p in serial.tools.list_ports.comports()]
+    ports.append("/dev/pts/3")
+    ports.append("/dev/pts/7")
     print('Available serial ports:', ports)
     return jsonify(ports=ports)
 

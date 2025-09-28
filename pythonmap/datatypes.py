@@ -21,4 +21,5 @@ ids = {
     "quaternion": 4,        # quat w, x, y, z
     "gps": 5,               # lat, lon, alt, hspeed, vspeed, heading
     "strain": 6,            # Strain sensor
+    "motherboard": 7,
 }
