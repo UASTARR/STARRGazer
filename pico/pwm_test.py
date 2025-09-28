@@ -1,14 +1,14 @@
 from machine import Pin, PWM
 
 # --- Setup two PWM outputs ---
-pwm1 = PWM(Pin(17))   # Pin for buzzer/motor 1
+pwm1 = PWM(Pin(28))   # Pin for buzzer/motor 1
 pwm2 = PWM(Pin(7))    # Pin for buzzer/motor 2
 
 # Optional enable + direction pins
-en1 = Pin(4, Pin.OUT)
-dir1 = Pin(5, Pin.OUT)
-en2 = Pin(6, Pin.OUT)
-dir2 = Pin(8, Pin.OUT)
+en1 = Pin(27, Pin.OUT)
+dir1 = Pin(26, Pin.OUT)
+en2 = Pin(8, Pin.OUT)
+dir2 = Pin(9, Pin.OUT)
 
 # Start with both off
 pwm1.duty_u16(0)
@@ -27,7 +27,7 @@ def update(f1, f2):
     set_pwm(pwm2, f2)
 
     # Update enable + direction pins
-    en1.value(1 if abs(f1) <= 1 else 0)
+    en1.value(1 if abs(f1) <= 1 else 0) 
     dir1.value(1 if f1 < 0 else 0)
     en2.value(1 if abs(f2) <= 1 else 0)
     dir2.value(1 if f2 < 0 else 0)

@@ -69,7 +69,7 @@ class SerialReader(threading.Thread):
                     text = repr(line)
                 self._save_buffer.append(text)
                 parsed = self.parse_line(text)
-                # print(parsed)
+                print(parsed)
                 # emit to clients
                 self._socketio.emit('serial_data', parsed,
                                     namespace="/")

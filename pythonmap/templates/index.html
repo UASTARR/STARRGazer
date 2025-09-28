@@ -322,23 +322,23 @@
       function updateParsedData(data) {
         if (data.ids == ids.id.temperature) {
           document.getElementById("temp").textContent =
-            data.temperature || "--";
+            data.temperature;
           document.getElementById("pressure").textContent =
-            data.pressure || "--";
+            data.pressure;
         } else if (data.ids == ids.id.acceleration) {
           document.getElementById("accX").textContent =
-            data.accelerationx || "--";
+            data.accelerationx;
           document.getElementById("accY").textContent =
-            data.accelerationy || "--";
+            data.accelerationy;
           document.getElementById("accZ").textContent =
-            data.accelerationz || "--";
+            data.accelerationz;
         } else if (data.ids == ids.id.gyroscope) {
           document.getElementById("gyrox").textContent =
-            data.gyroscopex || "--";
+            data.gyroscopex;
           document.getElementById("gyroy").textContent =
-            data.gyroscopey || "--";
+            data.gyroscopey;
           document.getElementById("gyroz").textContent =
-            data.gyroscopez || "--";
+            data.gyroscopez;
         } else if (data.ids == ids.id.quaternion) {
           const [r, p, y] = convertQuatOrient(
             data.quaternionx,
@@ -346,26 +346,26 @@
             data.quaternionz,
             data.quaternionw
           );
-          document.getElementById("roll").textContent = r || "--";
-          document.getElementById("pitch").textContent = p || "--";
-          document.getElementById("yaw").textContent = y || "--";
+          document.getElementById("roll").textContent = r;
+          document.getElementById("pitch").textContent = p;
+          document.getElementById("yaw").textContent = y;
         } else if (data.ids == ids.id.gps) {
-          document.getElementById("lat").textContent = data.lat || "--";
-          document.getElementById("lon").textContent = data.lon || "--";
-          document.getElementById("alt").textContent = data.alt || "--";
+          document.getElementById("lat").textContent = data.lat;
+          document.getElementById("lon").textContent = data.lon;
+          document.getElementById("alt").textContent = data.alt;
           document.getElementById("gpsfix").textContent =
-            getGpsFix(data.gpsfix) || "--";
-          document.getElementById("nsats").textContent = data.nsats || "--";
+            getGpsFix(data.gpsfix);
+          document.getElementById("nsats").textContent = data.nsats;
         } else if (data.ids == ids.id.strain) {
-          document.getElementById("strain").textContent = data.strain || "--";
+          document.getElementById("strain").textContent = data.strain;
         }
 
         const newPoint = [data.lat, data.lat];
-        pathCoords.push(newPoint);
-        pathLine.setLatLngs(pathCoords);
+        // pathCoords.push(newPoint);
+        // pathLine.setLatLngs(pathCoords);
 
-        marker.setLatLng([data.lat, data.lon]);
-        map.panTo([data.lat, data.lon]);
+        // marker.setLatLng([data.lat, data.lon]);
+        // map.panTo([data.lat, data.lon]);
       }
 
       // Convert strain gauge raw data to readable format
@@ -377,7 +377,7 @@
         return strainValue.toFixed(2) + " µε";
       }
 
-      function convertQuatOrient(x, y, z, quatw) {
+      function convertQuatOrient(x, y, z, w) {
         // Roll (x-axis rotation)
         const sinr_cosp = 2 * (w * x + y * z);
         const cosr_cosp = 1 - 2 * (x * x + y * y);
