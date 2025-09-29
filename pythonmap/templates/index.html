@@ -5,123 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Offline MBTiles Map + Serial UI</title>
     <link rel="stylesheet" href="static/leaflet.css" />
-    <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-
-      .app {
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .top {
-        display: flex;
-        flex: 1 1 auto;
-        flex-direction: row;
-      }
-
-      #map {
-        flex: 1;
-        height: calc(100vh - 20vh);
-        min-height: 300px;
-      }
-
-      .side {
-        flex-basis: 25%;
-        padding: 8px;
-        box-sizing: border-box;
-        height: calc(100vh - 20vh);
-        overflow: auto;
-        border-left: 1px solid #ddd;
-      }
-
-      .bottom {
-        height: 20vh;
-        border-top: 1px solid #ddd;
-        padding: 8px;
-        box-sizing: border-box;
-        overflow: auto;
-      }
-
-      .port-item {
-        cursor: pointer;
-        padding: 6px;
-        border: 1px solid #eee;
-        margin-bottom: 6px;
-      }
-      .port-item.selected {
-        background: #efefef;
-      }
-
-      label,
-      button {
-        display: block;
-        margin: 6px 0;
-      }
-
-      /* --- Mobile / Small Screen Styles --- */
-      @media (max-width: 768px) {
-        .top {
-          flex-direction: column;
-        }
-
-        #map {
-          height: 50vh; /* Half of viewport height for map */
-          flex-basis: auto;
-        }
-
-        .side {
-          border-left: none;
-          border-top: 1px solid #ddd;
-          height: auto;
-          flex-basis: auto;
-        }
-
-        .bottom {
-          height: auto;
-          min-height: 20vh;
-        }
-
-        /* Stack port and baud dropdowns vertically for narrow screens */
-        #serial-controls div[style*="display: flex"] {
-          flex-direction: column;
-          gap: 5px !important;
-          align-items: flex-start !important;
-        }
-
-        #serial-controls label {
-          margin: 0;
-        }
-
-        #serial-controls select,
-        #serial-controls button {
-          width: 100% !important;
-        }
-      }
-
-      /* --- Extra Small Screens --- */
-      @media (max-width: 480px) {
-        #map {
-          height: 45vh;
-        }
-        h1 {
-          font-size: 1.2em;
-          margin: 5px;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="static/main.css" />
   </head>
   <body>
     <div class="app">
       <div class="top">
         <div class="map-container" style="flex: 1; position: relative">
           <h1 style="margin: 10px">STARRGazer</h1>
-          <div id="map"></div>
+          <div id="graphs">
+            {% include 'graphs.html' %}
+          </div>
         </div>
         <div
           class="side"
@@ -234,8 +127,12 @@
                   <td id="accZ">--</td>
                 </tr>
                 <tr>
-                  <td>Strain Gauge (units):</td>
-                  <td id="strain">--</td>
+                  <td>Strain Gauge 1 (units):</td>
+                  <td id="strain1">--</td>
+                </tr>
+                <tr>
+                  <td>Strain Gauge 2 (units):</td>
+                  <td id="strain2">--</td>
                 </tr>
               </tbody>
             </table>
@@ -250,195 +147,7 @@
 
     <script src="static/leaflet.js"></script>
     <script src="static/socket.io.min.js"></script>
-    <script>
-      const socket = io();
-
-      // initialize map
-      let pathCoords = []; // Initialize pathCoords as an empty array
-
-      // document.addEventListener("DOMContentLoaded", function () {
-      //   var defaultLat = 47.9876571657164;
-      //   var defaultLon = -81.84886222782406;
-      //   var defaultZoom = 15;
-      //   var map = L.map("map").setView([defaultLat, defaultLon], defaultZoom);
-      //   L.tileLayer("/tiles/{z}/{x}/{y}.png", {
-      //     maxZoom: 17,
-      //     minZoom: 0,
-      //     tms: false,
-      //   }).addTo(map);
-      //
-      //   const customIcon = L.icon({
-      //     iconUrl: "static/icon.png",
-      //     iconSize: [40, 40],
-      //     iconAnchor: [12, 12],
-      //     popupAnchor: [1, -34],
-      //     shadowSize: [41, 41],
-      //   });
-      //
-      //   L.marker([defaultLat, defaultLon], { icon: customIcon }).addTo(map);
-      //
-      //   pathLine = L.polyline(pathCoords, { color: "red" }).addTo(map);
-      // });
-
-      // ports
-      // Populate baud rates (optional if static)
-      const baudRates = [9600, 19200, 38400, 57600, 115200];
-      const baudSelect = document.getElementById("baudSelect");
-      var ids = {};
-
-      // Fetch the IDs once and store them globally
-      async function fetchIds() {
-        try {
-          const response = await fetch("/ids");
-          ids = await response.json(); // Assign the fetched data to the global variable
-          console.log("Fetched IDs:", ids);
-        } catch (error) {
-          console.error("Error fetching IDs:", error);
-        }
-      }
-
-      // Call the function to fetch IDs when the script loads
-      fetchIds();
-      console.log(ids);
-
-      // Fetch available serial ports (this depends on your backend API)
-      async function fetchPorts() {
-        const res = await fetch("/ports");
-        const j = await res.json();
-        const portSelect = document.getElementById("portSelect");
-        portSelect.innerHTML = '<option value="">-- Select Port --</option>';
-        j.ports.forEach((p) => {
-          // Display p
-          console.log("Available port:", p);
-          const opt = document.createElement("option");
-          opt.value = p;
-          opt.textContent = p;
-          portSelect.appendChild(opt);
-        });
-      }
-      fetchPorts();
-
-      // Update data from parsed serial feed
-      function updateParsedData(data) {
-        if (data.ids == ids.id.temperature) {
-          document.getElementById("temp").textContent =
-            data.temperature;
-          document.getElementById("pressure").textContent =
-            data.pressure;
-        } else if (data.ids == ids.id.acceleration) {
-          document.getElementById("accX").textContent =
-            data.accelerationx;
-          document.getElementById("accY").textContent =
-            data.accelerationy;
-          document.getElementById("accZ").textContent =
-            data.accelerationz;
-        } else if (data.ids == ids.id.gyroscope) {
-          document.getElementById("gyrox").textContent =
-            data.gyroscopex;
-          document.getElementById("gyroy").textContent =
-            data.gyroscopey;
-          document.getElementById("gyroz").textContent =
-            data.gyroscopez;
-        } else if (data.ids == ids.id.quaternion) {
-          const [r, p, y] = convertQuatOrient(
-            data.quaternionx,
-            data.quaterniony,
-            data.quaternionz,
-            data.quaternionw
-          );
-          document.getElementById("roll").textContent = r;
-          document.getElementById("pitch").textContent = p;
-          document.getElementById("yaw").textContent = y;
-        } else if (data.ids == ids.id.gps) {
-          document.getElementById("lat").textContent = data.lat;
-          document.getElementById("lon").textContent = data.lon;
-          document.getElementById("alt").textContent = data.alt;
-          document.getElementById("gpsfix").textContent =
-            getGpsFix(data.gpsfix);
-          document.getElementById("nsats").textContent = data.nsats;
-        } else if (data.ids == ids.id.strain) {
-          document.getElementById("strain").textContent = data.strain;
-        }
-
-        const newPoint = [data.lat, data.lat];
-        // pathCoords.push(newPoint);
-        // pathLine.setLatLngs(pathCoords);
-
-        // marker.setLatLng([data.lat, data.lon]);
-        // map.panTo([data.lat, data.lon]);
-      }
-
-      // Convert strain gauge raw data to readable format
-      function convertStrainGauge(raw) {
-        if (raw === undefined || raw === null) return "--";
-        // Example: assuming raw ADC counts from a 24-bit ADC
-        const maxADC = 8388607; // for 24-bit signed
-        const strainValue = (raw / maxADC) * 1000; // example scaling to microstrain
-        return strainValue.toFixed(2) + " µε";
-      }
-
-      function convertQuatOrient(x, y, z, w) {
-        // Roll (x-axis rotation)
-        const sinr_cosp = 2 * (w * x + y * z);
-        const cosr_cosp = 1 - 2 * (x * x + y * y);
-        const roll = Math.atan2(sinr_cosp, cosr_cosp) * (180 / Math.PI);
-
-        // Pitch (y-axis rotation)
-        const sinp = 2 * (w * y - z * x);
-        let pitch;
-        if (Math.abs(sinp) >= 1) {
-          pitch = Math.sign(sinp) * 90; // Use 90 degrees if out of range
-        } else {
-          pitch = Math.asin(sinp) * (180 / Math.PI);
-        }
-
-        // Yaw (z-axis rotation)
-        const siny_cosp = 2 * (w * z + x * y);
-        const cosy_cosp = 1 - 2 * (y * y + z * z);
-        const yaw = Math.atan2(siny_cosp, cosy_cosp) * (180 / Math.PI);
-
-        return [roll.toFixed(2), pitch.toFixed(2), yaw.toFixed(2)];
-      }
-
-      function getGpsFix(fix) {
-        const modes = { 0: "No Fix", 1: "2D Fix", 2: "3D Fix" };
-        return modes[fix] || "No Fix";
-      }
-
-      document.getElementById("connect").onclick = () => {
-        const portSelect = document.getElementById("portSelect");
-        const baudSelect = document.getElementById("baudSelect");
-
-        const port = portSelect.value;
-        const baud = baudSelect.value || "115200";
-
-        if (!port) {
-          alert("Please select a serial port first.");
-          return;
-        }
-
-        socket.emit("start_serial", { port, baudrate: baud });
-      };
-
-      document.getElementById("disconnect").onclick = () => {
-        socket.emit("stop_serial");
-      };
-
-      const log = document.getElementById("log");
-
-      socket.on("serial_data", (data) => {
-        log.textContent = JSON.stringify(data) + "\n" + log.textContent;
-        updateParsedData(data);
-      });
-
-      socket.on("serial_started", (d) => {
-        log.textContent =
-          "[started] " + JSON.stringify(d) + "\n" + log.textContent;
-      });
-
-      socket.on("serial_stopped", () => {
-        log.textContent = "[stopped]\n" + log.textContent;
-      });
-    </script>
+    <script src="static/js/chart.umd.min.js"></script>
+    <script src="static/js/main.js"></script>
   </body>
 </html>

@@ -6,7 +6,7 @@ from datatypes import ids
 import pyubx2
 from datetime import datetime
 
-SERIAL_BAUDRATE = 115200
+SERIAL_BAUDRATE = 9600
 SERIAL_RECONNECT_DELAY = 3.0
 
 
@@ -200,11 +200,18 @@ class SerialReader(threading.Thread):
                 print(f"Error parsing GPS data: {e}")
                 return {}
         elif sensor_id == ids['strain']:
-            return {
-                "timestamp": timestamp,
-                "ids": sensor_id,
-                "strain": float(data)
-            }
+            try:
+                return_thing = {
+                    "timestamp": timestamp,
+                    "ids": sensor_id,
+                    "strain1": data[0],
+                    "strain2": data[1],
+                }
+            except Exception as e:
+                print(f"Error parsing strain data: {e}")
+                return {}
+
+            return return_thing
         else:
             print(f"Unhandled sensor ID: {sensor_id}")
             return {}

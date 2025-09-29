@@ -1,0 +1,111 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.top {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: row;
+}
+
+#map {
+    flex: 1;
+    height: calc(100vh - 20vh);
+    min-height: 300px;
+}
+
+.side {
+    flex-basis: 25%;
+    padding: 8px;
+    box-sizing: border-box;
+    height: calc(100vh - 20vh);
+    overflow: auto;
+    border-left: 1px solid #ddd;
+}
+
+.bottom {
+    height: 20vh;
+    border-top: 1px solid #ddd;
+    padding: 8px;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.port-item {
+    cursor: pointer;
+    padding: 6px;
+    border: 1px solid #eee;
+    margin-bottom: 6px;
+}
+
+.port-item.selected {
+    background: #efefef;
+}
+
+label,
+button {
+    display: block;
+    margin: 6px 0;
+}
+
+/* --- Mobile / Small Screen Styles --- */
+@media (max-width: 768px) {
+    .top {
+        flex-direction: column;
+    }
+
+    #map {
+        height: 50vh;
+        /* Half of viewport height for map */
+        flex-basis: auto;
+    }
+
+    .side {
+        border-left: none;
+        border-top: 1px solid #ddd;
+        height: auto;
+        flex-basis: auto;
+    }
+
+    .bottom {
+        height: auto;
+        min-height: 20vh;
+    }
+
+    /* Stack port and baud dropdowns vertically for narrow screens */
+    #serial-controls div[style*="display: flex"] {
+        flex-direction: column;
+        gap: 5px !important;
+        align-items: flex-start !important;
+    }
+
+    #serial-controls label {
+        margin: 0;
+    }
+
+    #serial-controls select,
+    #serial-controls button {
+        width: 100% !important;
+    }
+}
+
+/* --- Extra Small Screens --- */
+@media (max-width: 480px) {
+    #map {
+        height: 45vh;
+    }
+
+    h1 {
+        font-size: 1.2em;
+        margin: 5px;
+    }
+}
