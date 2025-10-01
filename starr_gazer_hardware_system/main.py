@@ -8,9 +8,8 @@ import time
 from datetime import datetime
 
 import pygame as pg
-import RPi.GPIO as GPIO
 
-from motor import GimbalMotor
+from motor import SerialMotorController
 from tracker import Tracker
 from ultralytics import YOLO
 import cv2
@@ -37,22 +36,17 @@ def line_sep(text: str, length: int = 50, character: str = '=') -> str:
     padding = (length - len(text)) // 2
     return character * padding + text + character * padding + (character if (length - len(text)) % 2 else '')
 
-def joystick(js, motor_x, motor_y):
+def joystick(js, motor_controller):
     x_axis = js.get_axis(2)
     y_axis = js.get_axis(1)
-    motor_x.move(x_axis)
-    motor_y.move(y_axis)
+    motor_controller.move(x_axis, y_axis)
 
 def main():
     print("Starting up IO")
-    print(f"Setting up motor for {GPIO.model}")
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setwarnings(False)
 
-    motor_x = GimbalMotor(33, 13, 37)
-    motor_x.set_enable(GPIO.LOW)
-    motor_y = GimbalMotor(15, 11, 38)
-    motor_y.set_enable(GPIO.LOW)
+    serial_device = "/dev/ttyACM" + input("Enter serial device number: ")
+    print(f"Setting up motor for {serial_device}")
+    motor_controller = SerialMotorController(serial_device, 9600)
 
     pg.init()
     pg.joystick.init()
@@ -70,7 +64,7 @@ def main():
 
     # Initialize the YOLO model
     model = YOLO(MODEL_PATH, task="detect")
-    tracker = Tracker(motor_x, motor_y, [22.3, 14.9], 18) # the units for the last three numbers are in mm
+    tracker = Tracker(motor_controller, [22.3, 14.9], 18) # the units for the last three numbers are in mm
     # Starts the display
     cap = cv2.VideoCapture(f'/dev/video{CAMERA_INDEX}', cv2.CAP_V4L2)
     if cap.isOpened():
@@ -153,7 +147,6 @@ def main():
                                 tracker.Kd[1] + 1
                                 ]
 
-            
             if cap.isOpened():
                 et, img = cap.read()
 
@@ -162,23 +155,22 @@ def main():
                 put_text_rect(raw_frame, f'{datetime.now()}', (10,30), 0.7, bg_color=(50, 50, 50))
                 writer.write(raw_frame)
 
-            # Joystick control
-            if input_mode == "joystick":
-                joystick(js, motor_x, motor_y)
-            # Model control
-            elif cap.isOpened():
-                results = model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
-                result = next(results)
-                boxes = result.boxes
-                if boxes.id is not None:
-                    pos = boxes.xywhn[0].cpu().tolist()[:2]
-                    print(f"ID: {boxes.id[0]} Position: {pos}")
-                    tracker.track([2*pos[0] - 1, 2*pos[1] - 1])  # Centering the position
-                    img = result.plot()
+                # Joystick control
+                if input_mode == "joystick":
+                    joystick(js, motor_controller)
+                # Model control
                 else:
-                    tracker.move(tracker.speed)
+                    results = model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
+                    result = next(results)
+                    boxes = result.boxes
+                    if boxes.id is not None:
+                        pos = boxes.xywhn[0].cpu().tolist()[:2]
+                        print(f"ID: {boxes.id[0]} Position: {pos}")
+                        tracker.track([2*pos[0] - 1, 2*pos[1] - 1])  # Centering the position
+                        img = result.plot()
+                    else:
+                        tracker.move(tracker.speed)
 
-            if cap.isOpened():
                 # Calculate FPS
                 curr_time = time.time()
                 fps = 1 / (curr_time - prev_time) if prev_time else 0
@@ -186,11 +178,14 @@ def main():
                 put_text_rect(img, f'N {tracker.N[0]} Kp: {tracker.Kp[0]} Ki: {tracker.Ki[0]}, Kd: {tracker.Kd[0]} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
                 put_text_rect(img, f'Speed: ({tracker.speed[0]:.2f}, {tracker.speed[1]:.2f}) Accel: ({tracker.accel[0]:.2f}, {tracker.accel[1]:.2f}) Max Freq: {common.MAX_FREQ:.2f}', (10, 60), 0.7, bg_color=(50, 50, 50))
 
-
                 cv2.imshow("DSLR Live", img)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     print("Exiting program on 'q' key press")
                     raise KeyboardInterrupt
+
+            else: # if we dont have a camera ignore input mode
+                joystick(js, motor_controller)
+
 
 
     except KeyboardInterrupt:
@@ -208,8 +203,7 @@ def main():
         cap.release()
 
         print("Motor stopping")
-        motor_x.stop_pwm()
-        motor_y.stop_pwm()
+        motor_controller.move(0,0)
         try:
             GPIO.cleanup()
         except OSError:  # For some reason cleanup gives us an os error
