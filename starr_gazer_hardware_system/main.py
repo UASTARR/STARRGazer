@@ -110,6 +110,7 @@ def main():
                             print(line_sep("Switching to model control mode"))
                         else:
                             print(line_sep("Switching to joystick mode"))
+                            motor_controller.move(0,0)
                             input_mode = "joystick"
                             tracker.speed = [0,0]
                             tracker.accel = [0,0]

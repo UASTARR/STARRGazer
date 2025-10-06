@@ -62,14 +62,15 @@ class SerialMotorController:
         next_time = time.perf_counter()
         while self.running.is_set() and self.serial.isOpen():
             with self._lock:
-                print(self._serial_message)
+                # print(self._serial_message)
                 self.send_msg(self._serial_message)
-            if self.serial.inWaiting() > 0:
-                data_str = self.serial.read(self.serial.inWaiting()).decode('ascii') 
-                print(data_str, end='') 
+            # if self.serial.inWaiting() > 0:
+            #     data_str = self.serial.read(self.serial.inWaiting()).decode('ascii') 
+            #     print(data_str, end='') 
             next_time += self.MSG_INTERVAL
             sleep_time = max(0, next_time - time.perf_counter())
             time.sleep(sleep_time)
+        self.send_msg(b"0 0\r\n")
         self.serial.close()
             
     def send_msg(self, msg: bytes):
