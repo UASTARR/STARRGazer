@@ -48,7 +48,9 @@ def main():
     serial_device = "/dev/ttyACM" + input("Enter port number: ") 
     print(f"Setting up motor for {serial_device}")
     motor_controller = SerialMotorController(serial_device,115200)
+    motor_controller.run()
 
+    print("Initializng Joystick")
     pg.init()
     pg.joystick.init()
 
@@ -63,9 +65,13 @@ def main():
     input_mode = "joystick"
     print(f"Input mode: {input_mode}")
 
+    print("Initializng YOLO")
     # Initialize the YOLO model
     model = YOLO(MODEL_PATH, task="detect")
     tracker = Tracker(motor_controller, [22.3, 14.9], 18) # the units for the last three numbers are in mm
+
+    
+    print("Initializng OpenCV")
     # Starts the display
     cap = cv2.VideoCapture(f'/dev/video{CAMERA_INDEX}', cv2.CAP_V4L2)
     if cap.isOpened():
@@ -176,7 +182,10 @@ def main():
                 curr_time = time.time()
                 fps = 1 / (curr_time - prev_time) if prev_time else 0
                 prev_time = curr_time
-                put_text_rect(img, f'N {tracker.N[0]} Kp: {tracker.Kp[0]} Ki: {tracker.Ki[0]}, Kd: {tracker.Kd[0]} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
+                if input_mode == "joystick":
+                    put_text_rect(img, f'Joystick ({js.get_axis(2):.2f},{js.get_axis(1):.2f}) Serial Msg: {motor_controller.get_msg()} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
+                else:
+                    put_text_rect(img, f'N {tracker.N[0]} Kp: {tracker.Kp[0]} Ki: {tracker.Ki[0]}, Kd: {tracker.Kd[0]} FPS: {fps:.2f}', (10, 30), 0.7, bg_color=(50, 50, 50))
                 put_text_rect(img, f'Speed: ({tracker.speed[0]:.2f}, {tracker.speed[1]:.2f}) Accel: ({tracker.accel[0]:.2f}, {tracker.accel[1]:.2f}) Max Freq: {common.MAX_FREQ:.2f}', (10, 60), 0.7, bg_color=(50, 50, 50))
 
                 cv2.imshow("DSLR Live", img)

@@ -14,8 +14,9 @@ dir2 = Pin(26, Pin.OUT)
 pwm1.duty_u16(0)
 pwm2.duty_u16(0)
 
+
 def set_pwm(pwm, freq):
-    if abs(freq) <= 1:        # off
+    if abs(freq) <= 10:        # off
         pwm.duty_u16(0)
     else:
         pwm.freq(abs(freq))   # set frequency
@@ -37,14 +38,13 @@ f1, f2 = 0, 0   # current values
 print("Starting board")
 try:
     while True:
-            user_input = input("Enter (f1,f2): ")  # example: (1000,2000)
-            if not user_input.strip() or "," not in user_input :
-                continue
-            parts = user_input.strip()[1:-1].split(",")
-            f1 = int(parts[0])
-            f2 = int(parts[1])
-            update(f1, f2)
+        user_input = input().strip()  # example: "1000 2000"
+        if not user_input or len(parts := user_input.split()) != 2: 
+            continue
+        f1 = int(parts[0])
+        f2 = int(parts[1])
+        update(f1, f2)
+        
 except Exception as e:
     update(0,0)
     print("Parse error:", e)
-
