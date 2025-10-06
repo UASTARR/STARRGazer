@@ -10,8 +10,8 @@ class Tracker:
         self.previous_pid = [0, 0]
         self.previous_error = [0, 0]
         self.total_pid = [0, 0]
-        self.Kp = [1, 1]
-        self.Kd = [10, 10]
+        self.Kp = [10, 10]
+        self.Kd = [50, 50]
         self.Ki = [0, 0]
         self.N = [10, 10]
         self.motor_controller = motor_controller

@@ -33,21 +33,18 @@ def update(f1, f2):
     dir2.value(0 if f2 < 0 else 1)
 
 # --- Main Program Loop ---
-def run():
-    f1, f2 = 0, 0   # current values
-    try:
-        while True:
-                user_input = input("Enter (f1,f2): ")  # example: (1000,2000)
-                if not user_input.strip():
-                    continue
-                parts = user_input.strip()[1:-1].split(",")
-                f1 = int(parts[0])
-                f2 = int(parts[1])
-                update(f1, f2)
-    except Exception as e:
-        update(0,0)
-        print("Parse error:", e)
+f1, f2 = 0, 0   # current values
+print("Starting board")
+try:
+    while True:
+            user_input = input("Enter (f1,f2): ")  # example: (1000,2000)
+            if not user_input.strip() or "," not in user_input :
+                continue
+            parts = user_input.strip()[1:-1].split(",")
+            f1 = int(parts[0])
+            f2 = int(parts[1])
+            update(f1, f2)
+except Exception as e:
+    update(0,0)
+    print("Parse error:", e)
 
-
-if __name__ == "__main__":
-    run()

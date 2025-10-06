@@ -14,9 +14,10 @@ from tracker import Tracker
 from ultralytics import YOLO
 import cv2
 import common
+import serial
 
-MODEL_PATH = "weights/multiple.engine"  # Path to the YOLO model file
-# MODEL_PATH = "yolo11s.pt"  # Path to the YOLO model file
+# MODEL_PATH = "weights/multiple.engine"  # Path to the YOLO model file
+MODEL_PATH = "yolo11s.pt"  # Path to the YOLO model file
 CAMERA_INDEX = 0  # Index of the camera to use, usually 0 for the first camera
 
 def put_text_rect(img, text, pos, scale=0.5, thickness=1, bg_color=(0,0,0), text_color=(255,255,255)):
@@ -37,16 +38,16 @@ def line_sep(text: str, length: int = 50, character: str = '=') -> str:
     return character * padding + text + character * padding + (character if (length - len(text)) % 2 else '')
 
 def joystick(js, motor_controller):
-    x_axis = js.get_axis(2)
-    y_axis = js.get_axis(1)
+    x_axis = common.MAX_FREQ*js.get_axis(2)
+    y_axis = common.MAX_FREQ*js.get_axis(1)
     motor_controller.move(x_axis, y_axis)
 
 def main():
     print("Starting up IO")
 
-    serial_device = "/dev/ttyACM" + input("Enter serial device number: ")
+    serial_device = "/dev/ttyACM" + input("Enter port number: ") 
     print(f"Setting up motor for {serial_device}")
-    motor_controller = SerialMotorController(serial_device, 9600)
+    motor_controller = SerialMotorController(serial_device,115200)
 
     pg.init()
     pg.joystick.init()
@@ -92,8 +93,8 @@ def main():
                         print(f"MAX_FREQ = {common.MAX_FREQ}")
 
                     if input_mode == "joystick":
-                        print(f"Axis {event.axis}: {event.value}")
-                        print(f"Running {motor_x.running}")
+                        pass
+                        # print(f"Axis {event.axis}: {event.value}")
 
                 # Switch input mode
                 if event.type == pg.JOYBUTTONUP: 
@@ -204,10 +205,8 @@ def main():
 
         print("Motor stopping")
         motor_controller.move(0,0)
-        try:
-            GPIO.cleanup()
-        except OSError:  # For some reason cleanup gives us an os error
-            pass
+        motor_controller.close()
+
     print("Finishing IO")
 
 
