@@ -96,7 +96,7 @@ def main():
                 if event.type == pg.JOYAXISMOTION:
                     if event.axis == 3:
                         common.MAX_FREQ = (((1-event.value)/2) * 1900) + 100
-                        print(f"MAX_FREQ = {common.MAX_FREQ}")
+                        #print(f"MAX_FREQ = {common.MAX_FREQ}")
 
                     if input_mode == "joystick":
                         pass
@@ -214,9 +214,13 @@ def main():
         cap.release()
 
         print("Motor stopping")
-        motor_controller.move(0,0)
-        motor_controller.close()
 
+        motor_controller.close(close_serial=False)
+
+    
+    print("Sending stop msg to motor")
+    motor_controller.send_msg(b'0 0\r\n')
+    motor_controller.serial.close()
     print("Finishing IO")
 
 
