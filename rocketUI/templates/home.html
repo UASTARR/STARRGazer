@@ -5,12 +5,11 @@
 <title>Enhanced Dashboard</title>
 <script src="static/chart.umd.js"></script>
 
-
-<!--  Adding video display, map display
+<!-- 
+Things to do:
+Add video display (?)
+map display (leaflet - get approval)
 Responsive Design
-
-bug: when map and two other tabs - when menu close button is pressed the map tab closes while the two other tabs stay open
-when menu button is pressed again (to open menu) the map and the two other tabs show up
 -->
 
 <style>
@@ -49,12 +48,6 @@ when menu button is pressed again (to open menu) the map and the two other tabs 
   /*Hide sidebar when collapsed*/
   .menu-collapsed .tab {
     display: none;
-  }
-
-  .menu-collapsed #placeholder,
-  .menu-collapsed .tabcontent {
-    width: 100% !important;
-    left: 0 !important;
   }
 
   .tab button {
@@ -294,8 +287,8 @@ function layoutTabs(){
   const nonMap = tabQueue.filter(t=>t!=='Map');
   const availH = `calc(100% - ${HEADER_H}px)`;
   const halfH = `calc((${availH}) / 2)`;
-  const fullW = '80%';
-  const leftHalf = '50%';
+  const fullW = menuOpen ? '80%' : '100%';
+  const leftHalf = menuOpen ? '50%' : '50%';
 
   if(hasMap && nonMap.length===0){
     const mapEl=document.getElementById('Map');
@@ -326,6 +319,16 @@ function layoutTabs(){
   }
 
   document.getElementById('placeholder').style.display=tabQueue.length===0?'flex':'none';
+  const placeholder = document.getElementById('placeholder');
+  if (tabQueue.length === 0) {
+    placeholder.style.display = 'flex';
+    placeholder.style.width = menuOpen ? '80%' : '100%';
+    placeholder.style.left = '0';
+    placeholder.style.top = `${HEADER_H}px`;
+    placeholder.style.height = `calc(100% - ${HEADER_H}px)`;
+  } else {
+    placeholder.style.display = 'none';
+  }
 }
 
 function activateTab(tabName){
