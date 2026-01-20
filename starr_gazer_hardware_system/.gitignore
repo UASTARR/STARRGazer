@@ -35,3 +35,6 @@
 build/
 compile_commands.json
 **.depend
+__pycache__/
+saved_footage/*
+weights/

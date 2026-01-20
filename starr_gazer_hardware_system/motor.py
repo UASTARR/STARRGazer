@@ -4,91 +4,118 @@ Author: Sovereign Shahid
 Date: 2025-06-02
 """
 
+import common
 import time
 import threading
-import RPi.GPIO as GPIO
-import numpy as np
 
-class GimbalMotor:
+import re
 
-    def __init__(self, step: int, direction: int, enable: int):
-        # EVERYTHING IS ACTIVE LOW
-        GPIO.setup(step, GPIO.OUT, initial=GPIO.LOW)
-        GPIO.setup(direction, GPIO.OUT, initial=GPIO.HIGH)
-        GPIO.setup(enable, GPIO.OUT, initial=GPIO.HIGH)
+from serial import Serial
 
-        self.step_pin = GPIO.PWM(step, 10)  # 1kHz Frequency
-        self.dir_pin = direction
-        self.enable_pin = enable
-        self.running = False
+STARTUP_MSG = "Starting board"
 
-    def set_dir(self, direction: int):
-        """
-        Sets the direction pin of the motor (ccw low and cw high) 
-        """
-        GPIO.output(self.dir_pin, direction)
+class SerialMotorController:
 
-    def set_enable(self, enable: int):
-        """
-        Sets the enable pin of the motor
-        """
-        GPIO.output(self.dir_pin, enable)
+    # -- CONSTANTS -- #
+    MSG_INTERVAL = 0.01  # 10 ms
 
-    def set_duty_cycle(self, duty_cycle: int):
-        """
-        Sets the duty cycle of the step signal
-        """
-        self.step_pin.ChangeDutyCycle(duty_cycle)
+    def __init__(self, port: str, baud_rate: int):
+        self.serial: Serial = Serial(port, baud_rate)
 
-    def set_freq(self, freq: float):
-        """
-        Sets the duty cycle of the step signal
-        """
-        self.step_pin.ChangeFrequency(freq)
+        # Thread logic
+        self._lock = threading.Lock()
+        self.running = threading.Event()
+        self.running.set()
 
-    def step_motor(self):
-        """
-        Steps the motor once
-        """
-        self.step_pin.start(100)
-        time.sleep(1e-6)  # sleep for 1 microsecond
-        self.step_pin.stop()
+        self._serial_message = b'0 0\r\n' 
+        self._thread = threading.Thread(target=self._thread_loop, daemon=True)
+        self._init_serial()
 
-    def start_pwm(self, duty_cycle: int = 50):
-        """
-        Runs the motor at a given duty cycle
-        """
-        if not self.running:
-            self.step_pin.start(duty_cycle)
-            self.running = True
+    def _init_serial(self):
+        print("Initializing Serial")
+        if not self.serial.isOpen():
+            self.serial.open()
+            time.sleep(0.5) # wait for connection to open
 
-    def stop_pwm(self):
-        """
-        Stops a currently running motor
-        """
-        if self.running:
-            self.step_pin.stop()
-            self.running = False
+        self.serial.reset_output_buffer()
+        self.serial.reset_input_buffer()
 
-    def move(self, axis: float):
-        MAX_FREQ = 1500
-        try:
-            if np.abs(axis) < 0.15:
-                self.stop_pwm()
-            else:
-                self.start_pwm()
-                if self.running:
-                     if axis < 0:
-                         self.set_freq(-1*axis*MAX_FREQ+1)
-                         self.set_dir(0)
-                     else:
-                         self.set_freq(axis*MAX_FREQ+1)
-                         self.set_dir(1)
-        except Exception as e:
-            print(f"Running: {self.running}")
-            print(f"axis: {axis}")
-            raise e
+        time.sleep(0.1) # wait for connection to open
+        startup_msg = self.serial.read_all().decode("utf-8")
 
-        
+        while STARTUP_MSG not in startup_msg:
+            print("Soft rebooting board")
+            self.serial.write(b"\x04")
+            self.serial.flush()
+            time.sleep(0.1) # wait for connection to open
+            startup_msg = self.serial.read_all().decode("utf-8")
 
+
+    def move(self, x_freq: float, y_freq: float):
+        # bound frequencies
+        x_freq = x_freq if x_freq < common.MAX_FREQ else common.MAX_FREQ
+        x_freq = x_freq if x_freq > -common.MAX_FREQ else -common.MAX_FREQ
+        y_freq = y_freq if y_freq < common.MAX_FREQ else common.MAX_FREQ
+        y_freq = y_freq if y_freq > -common.MAX_FREQ else -common.MAX_FREQ
+
+        self._serial_message = f"{x_freq:.0f} {y_freq:.0f}\r\n".encode()
+
+    def _thread_loop(self):
+        next_time = time.perf_counter()
+        while self.running.is_set() and self.serial.isOpen():
+            with self._lock:
+                self.send_msg(self._serial_message)
+            if self.serial.inWaiting() > 0:
+                data_str = self.serial.read(self.serial.inWaiting()).decode('ascii') 
+                if re.search('[a-zA-Z]', data_str):
+                    print(data_str) 
+            next_time += self.MSG_INTERVAL
+            sleep_time = max(0, next_time - time.perf_counter())
+            time.sleep(sleep_time)
+        self.send_msg(b"0 0\r\n")
+            
+    def send_msg(self, msg: bytes):
+        self.serial.write(msg)
+        self.serial.flush()
+
+    def get_msg(self):
+        return self._serial_message[:-2].decode('utf-8')
+
+    def run(self):
+        self._thread.start()
+
+    def close(self, close_serial = True):
+        self.running.clear()
+        if close_serial:
+            self.serial.close()
+        if self._thread.is_alive():
+            self._thread.join()
+
+if __name__ == "__main__":
+    multithreaded = True
+    device = "/dev/ttyACM0"
+    baud_rate = 115200
+    motors = SerialMotorController(device, baud_rate)
+    commands = [
+        (100,100), 
+        (0,0), 
+        (-100,-100), 
+        (0,0), 
+    ]
+
+    if multithreaded:
+        motors.run()
+
+    for command in commands:
+        print(f"sending {command}")
+        if multithreaded:
+            motors.move(*command)
+        else:
+            motors.send_msg(f"{command[0]} {command[1]}\r\n".encode())
+        time.sleep(1)
+
+    if multithreaded:
+        motors.close()
+    else:
+        motors.serial.close()
 

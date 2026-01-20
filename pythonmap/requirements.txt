@@ -1,0 +1,6 @@
+flask
+folium
+pyserial
+pyubx2
+flask-socketio
+pyubx2
