@@ -15,6 +15,10 @@ def home():
 def wireless_arming():
     return render_template("wireless_arming.html")
 
+@app.route("/wireless_arming/fallback")
+def fallback():
+    return render_template("fallback.html")
+
 @app.route('/manifest.json')
 def serve_manifest():
     return send_file('manifest.json', mimetype='application/manifest+json')
