@@ -6,17 +6,7 @@
   <title>STARR Wireless Arming Switch</title>
   <link rel="icon" href="{{url_for('static', filename='icons/icon.png')}}" type="image/png">
   <link rel="manifest" href="/manifest.json">
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register("/sw.js").then(function(registration) {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, function(err) {
-          console.log('ServiceWorker registration failed: ', err);
-        });
-      });
-    }
-  </script>
+  <script src="{{url_for('static', filename='wireless_arming.js')}}"></script>
 </head>
 <body>
   <h1>STARR Wireless Arming Switch</h1>
