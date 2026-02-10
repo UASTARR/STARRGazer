@@ -1,0 +1,14 @@
+{
+  "name": "STARR Wireless Arming Switch",
+  "short_name": "Wireless Arming",
+  "start_url": "/wireless_arming",
+  "scope": "/wireless_arming",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/static/icons/icon.png",
+      "type": "image/png",
+      "sizes": "900x900"
+    }
+  ]
+}
