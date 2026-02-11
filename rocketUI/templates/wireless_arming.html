@@ -2,6 +2,8 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="manifest" href="manifest.json" />
   <title>STARR Wireless Arming Switch</title>
   <link rel="icon" href="{{url_for('static', filename='icons/icon.png')}}" type="image/png">
@@ -9,6 +11,7 @@
 </head>
 <body>
   <h1>STARR Wireless Arming Switch</h1>
+  <div id="connection-status"></div>
   <button id="connect-bluetooth">Connect To Switch</button>
   <script src="{{url_for('static', filename='wireless_arming.js')}}"></script>
 </body>
