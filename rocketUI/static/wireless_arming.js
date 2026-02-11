@@ -8,7 +8,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-async function connectToBluetoothDevice(){
+document.getElementById("connect-bluetooth").addEventListener("click", async () => {
   if (!navigator.bluetooth || !navigator.bluetooth.requestDevice){
     alert("Your device does not support the Web Bluetooth API. Try again on Chrome on Desktop or Android!");
   }
@@ -19,4 +19,4 @@ async function connectToBluetoothDevice(){
     let device = await navigator.bluetooth.requestDevice({acceptAllDevices: true});
     alert("Successfully connected to "+device.name);
   }
-}
+});

@@ -6,10 +6,10 @@
   <title>STARR Wireless Arming Switch</title>
   <link rel="icon" href="{{url_for('static', filename='icons/icon.png')}}" type="image/png">
   <link rel="manifest" href="/manifest.json">
-  <script src="{{url_for('static', filename='wireless_arming.js')}}"></script>
 </head>
 <body>
   <h1>STARR Wireless Arming Switch</h1>
-  <button onclick="connectToBluetoothDevice()">Connect To Switch</button>
+  <button id="connect-bluetooth">Connect To Switch</button>
+  <script src="{{url_for('static', filename='wireless_arming.js')}}"></script>
 </body>
 </html>
