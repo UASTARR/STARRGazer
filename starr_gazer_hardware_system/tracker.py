@@ -4,7 +4,6 @@ import common
 
 
 class Tracker:
-
     def __init__(self, motor_controller, sensor_length, focal_length):
         self.previous_time = time.perf_counter()
         self.previous_pid = [0, 0]
@@ -17,7 +16,10 @@ class Tracker:
         self.motor_controller = motor_controller
         self.accel = [0, 0]
         self.speed = [0, 0]
-        self.los_angles = [np.arctan2(2*focal_length, sensor_length[0]),np.arctan2(2*focal_length, sensor_length[1])]
+        self.los_angles = [
+            np.arctan2(2 * focal_length, sensor_length[0]),
+            np.arctan2(2 * focal_length, sensor_length[1]),
+        ]
 
     # WE ARE NOT USING PROPNAV
     # def _propnav(self, error):
@@ -55,23 +57,21 @@ class Tracker:
             + self.Kd[1] * derivative[1],
         ]
 
-    def move(self, accel = [0, 0]):
+    def move(self, accel=[0, 0]):
         self.accel = accel
-        self.speed = [
-                self.speed[0] + accel[0],
-                self.speed[1] + accel[1]
-                ]
+        self.speed = [self.speed[0] + accel[0], self.speed[1] + accel[1]]
 
         print(f"accel: {accel}")
         print(f"speed: {self.speed}")
-
 
         if self.speed[0] > common.MAX_FREQ:
             self.speed[0] = common.MAX_FREQ
         elif self.speed[0] < -common.MAX_FREQ:
             self.speed[0] = -common.MAX_FREQ
 
-        self.motor_controller.move(*self.speed) # pass speed to motor controller as two arguments
+        self.motor_controller.move(
+            *self.speed
+        )  # pass speed to motor controller as two arguments
 
     def track(self, error):
         """
@@ -79,4 +79,3 @@ class Tracker:
         """
 
         self.move(self._pid(error))
-

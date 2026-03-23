@@ -1,11 +1,11 @@
 from machine import Pin, PWM
 
 # --- Setup two PWM outputs ---
-pwm1 = PWM(Pin(7))   # Pin for buzzer/motor 1
-pwm2 = PWM(Pin(28))    # Pin for buzzer/motor 2
+pwm1 = PWM(Pin(8))  # Pin for buzzer/motor 1 (x axis)
+pwm2 = PWM(Pin(28))  # Pin for buzzer/motor 2 (y axis)
 
 # Optional enable + direction pins
-en1 = Pin(8, Pin.OUT)
+en1 = Pin(7, Pin.OUT)
 dir1 = Pin(9, Pin.OUT)
 en2 = Pin(27, Pin.OUT)
 dir2 = Pin(26, Pin.OUT)
@@ -16,11 +16,12 @@ pwm2.duty_u16(0)
 
 
 def set_pwm(pwm, freq):
-    if abs(freq) <= 10:        # off
+    if abs(freq) <= 10:  # off
         pwm.duty_u16(0)
     else:
-        pwm.freq(abs(freq))   # set frequency
-        pwm.duty_u16(32768)   # 50% duty
+        pwm.freq(abs(freq))  # set frequency
+        pwm.duty_u16(32768)  # 50% duty
+
 
 def update(f1, f2):
     # Update PWM
@@ -28,23 +29,24 @@ def update(f1, f2):
     set_pwm(pwm2, f2)
 
     # Update enable + direction pins
-    en1.value(1 if abs(f1) <= 1 else 0) 
-    dir1.value(0 if f1 < 0 else 1) # different dir for x axis
+    en1.value(1 if abs(f1) <= 1 else 0)
+    dir1.value(1 if f1 < 0 else 0)  # different dir for x axis
     en2.value(1 if abs(f2) <= 1 else 0)
     dir2.value(0 if f2 < 0 else 1)
 
+
 # --- Main Program Loop ---
-f1, f2 = 0, 0   # current values
+f1, f2 = 0, 0  # current values
 print("Starting board")
 try:
     while True:
         user_input = input().strip()  # example: "1000 2000"
-        if not user_input or len(parts := user_input.split()) != 2: 
+        if not user_input or len(parts := user_input.split()) != 2:
             continue
         f1 = int(parts[0])
         f2 = int(parts[1])
         update(f1, f2)
-        
+
 except Exception as e:
-    update(0,0)
+    update(0, 0)
     print("Parse error:", e)

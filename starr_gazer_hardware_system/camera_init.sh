@@ -1,5 +1,5 @@
 # Creates a dummy webcam device and feeds the camera stream to it
-sudo modprobe v4l2loopback
+#sudo modprobe v4l2loopback
 v4l2-ctl --list-devices
 pkill gphoto2
 # Starts the feeding camera to dummy webcam
