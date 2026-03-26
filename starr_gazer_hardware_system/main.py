@@ -7,8 +7,6 @@ Date: 2025-06-02
 import time
 from datetime import datetime
 
-import pygame as pg
-
 from joystick_control import Joystick
 from motor import SerialMotorController
 from tracker import Tracker
@@ -16,8 +14,6 @@ from tracker import Tracker
 from model_control import ModelTracker
 
 import cv2
-import common
-import serial
 
 # MODEL_PATH = "weights/multiple.engine"  # Path to the YOLO model file
 MODEL_PATH = "yolo11s.pt"  # Path to the YOLO model file
@@ -51,7 +47,6 @@ def main():
 
     print("Initializng YOLO")
     # Initialize the YOLO model
-    model = YOLO(MODEL_PATH, task="detect")
     tracker = Tracker(motor_controller, [22.3, 14.9], 18) # the units for the last three numbers are in mm
 
     model_tracker = ModelTracker(MODEL_PATH, tracker)
@@ -91,20 +86,16 @@ def main():
                 if joystick.input_mode == "joystick":
                     joystick.drive()
                 else:
-                    results = model.track(img, imgsz=1024, classes=[0], persist=True, stream=True)
-                    result = next(results)
-                    boxes = result.boxes
-                    if boxes.id is not None:
-                        pos = boxes.xywhn[0].cpu().tolist()[:2]
-                        print(f"ID: {boxes.id[0]} Position: {pos}")
-                        tracker.track([2*pos[0] - 1, 2*pos[1] - 1])  # Centering the position
-                        img = result.plot()
-                    else:
-                        tracker.move(tracker.speed)
+                    img = model_tracker._track(img)
+
                 # Video saving with timestamp
                 raw_frame = img.copy()
-                put_text_rect(img, joystick.get_hud_string(fps), (10, 30), 0.7, bg_color = (50, 50, 50))
                 writer.write(raw_frame)
+
+                if joystick.input_mode == "joystick":
+                    put_text_rect(img, joystick.get_hud_string(fps), (10, 30), 0.7, bg_color=(50, 50, 50))
+                else:
+                    put_text_rect(img, model_tracker._get_hud_string(fps), (10, 30), 0.7, bg_color=(50, 50, 50))
 
                 cv2.imshow("DSLR Live", img)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -128,7 +119,6 @@ def main():
 
         motor_controller.close(close_serial=False)
 
-    
     print("Sending stop msg to motor")
     motor_controller.send_msg(b'0 0\r\n')
     motor_controller.serial.close()
