@@ -18,7 +18,7 @@ class Joystick:
             raise RuntimeError("ERROR: No joystick connected. " \
             "Please connect the Logitech Extreme 3D Pro and retry.")
         
-        self.joystick = Joystick(0)
+        self.joystick = pg.joystick.Joystick(0)
         self.joystick.init()
 
         self.input_mode: str = "joystick"
@@ -28,24 +28,58 @@ class Joystick:
         self.motor_controller: SerialMotorController = motor_controller
         self.tracker: Tracker = tracker
 
-    def processEvents():
+    def _process_events(self):
         for event in pg.event.get():
-            _handle_event(event)
+            self._handle_event(event)
 
-    def _handle_event(event):
+    def _handle_event(self, event):
         if event.type == pg.JOYBUTTONUP:
-            _handle_button(event.button)
+            self._handle_button(event.button)
         if event.type == pg.JOYAXISMOTION:
-            _handle_axis(event.axis, event.value)
+            self._handle_axis(event.axis, event.value)
 
-    def _handle_button(button):
+    def _handle_button(self, button):
         if button == 0:
-            should_exit = True;
-        if button == 1 and cap.isOpen():
-            if input_mode == "joystick":
-                input_mode = "model"
+            self.should_exit = True
+        if button == 1 and self.has_camera:
+            if self.input_mode == "joystick":
+                self.input_mode = "model"
             else:
-                input_mode = "joystick"
-                motor_controller.move(0, 0)
-                tracker.speed = [0,0]
-                tracker.accel = [0,0]
+                self.input_mode = "joystick"
+                self.motor_controller.move(0, 0)
+                self.tracker.speed = [0,0]
+                self.tracker.accel = [0,0]
+        if button == 2: self.tracker.N -= 5
+        if button == 3: self.tracker.N += 5
+        if button == 4: self.tracker.Kp -= 1
+        if button == 5: self.tracker.Kp += 1
+        if button == 8: self.tracker.Ki -= 1
+        if button == 9: self.tracker.Ki += 1
+        if button == 10: self.tracker.Kd -= 1
+        if button == 11: self.tracker.Kd += 1
+    
+    def _handle_axis(self, axis, value):
+        if axis == 3:
+            common.MAX_FREQ = ((1 - value) / 2 * 1900) + 100
+    
+    def drive(self):
+        if self.joystick is None: # Keyboard input for testing
+            keys = pg.key.get_pressed()
+            x_axis = common.MAX_FREQ if keys[pg.K_RIGHT] else -common.MAX_FREQ if keys[pg.K_LEFT] else 0
+            y_axis = common.MAX_FREQ if keys[pg.K_DOWN] else -common.MAX_FREQ if keys[pg.K_UP] else 0
+        else: # Joystick connected
+            x_axis = common.MAX_FREQ * self.joystick.get_axis(2)
+            y_axis = common.MAX_FREQ * self.joystick.get_axis(1)
+
+        self.motor_controller.move(x_axis, y_axis)
+
+    def get_hud_string(self, fps: float) -> str:
+        return (
+            f'Joystick ({self.joystick.get_axis(2):.2f}, {self.joystick.get_axis(1):.2f}) '
+            f'Serial Msg: {self.motor_controller.get_msg()} '
+            f'FPS: {fps:.2f}'
+        )
+    
+    def _shutdown(self):
+        pg.event.clear()
+        pg.quit()
