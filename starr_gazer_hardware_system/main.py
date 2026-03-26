@@ -12,7 +12,9 @@ import pygame as pg
 from joystick_control import Joystick
 from motor import SerialMotorController
 from tracker import Tracker
-from ultralytics import YOLO
+
+from model_control import ModelTracker
+
 import cv2
 import common
 import serial
@@ -20,6 +22,7 @@ import serial
 # MODEL_PATH = "weights/multiple.engine"  # Path to the YOLO model file
 MODEL_PATH = "yolo11s.pt"  # Path to the YOLO model file
 CAMERA_INDEX = 0  # Index of the camera to use, usually 0 for the first camera
+
 
 def put_text_rect(img, text, pos, scale=0.5, thickness=1, bg_color=(0,0,0), text_color=(255,255,255)):
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -50,6 +53,8 @@ def main():
     # Initialize the YOLO model
     model = YOLO(MODEL_PATH, task="detect")
     tracker = Tracker(motor_controller, [22.3, 14.9], 18) # the units for the last three numbers are in mm
+
+    model_tracker = ModelTracker(MODEL_PATH, tracker)
 
     
     print("Initializng OpenCV")
