@@ -8,6 +8,9 @@ class ModelTracker:
         self.results = None
 
     def _track(self, img):
+        """
+        Model tracking function
+        """
         results = self.model.track(img, imgsz=1024, classes=[0], persist = True, stream = True)
         result = next(results)
         self.boxes = result.boxes
@@ -23,6 +26,9 @@ class ModelTracker:
         return img
     
     def _get_hud_string(self, fps: float) -> str:
+        """
+        Hud string
+        """
         return (
             f'N {self.tracker.N[0]} '
             f'Kp: {self.tracker.Kp[0]} '
@@ -32,4 +38,7 @@ class ModelTracker:
         )
     
     def _is_tracking(self) -> bool:
+        """
+        Tracking boolean
+        """
         return self.boxes is not None and self.boxes.id is not None
