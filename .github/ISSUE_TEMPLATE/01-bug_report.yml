@@ -1,0 +1,103 @@
+name: 🐞 Bug
+description: File a bug/issue
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: dropdown
+    attributes:
+      label: Severity
+      description: How severe is the bug?
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Current Behavior / The Bug
+      description: A concise description of what you're experiencing.
+      placeholder: |
+        Attach screenshots, error messages, or logs to help explain the problem you're encountering!
+        For example:
+
+        - When I click the "Submit" button, nothing happens.
+        - The app crashes when I try to upload a file larger than 5MB.
+        - I'm getting a 500 Internal Server Error when I access the dashboard.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A concise description of what you expected to happen.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Environment
+      description: |
+        examples:
+          - **Device**: iPhone 6
+          - **OS**: iOS
+          - **OS Version**: 26.5
+          - **Browser**: Chrome
+          - **Browser Version**: 148.0.7778.168
+      value: |
+        - Device:
+        - OS:
+        - OS Version:
+        - Browser:
+        - Browser Version:
+      render: markdown
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Steps To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. In this environment...
+        2. With this config...
+        3. Open this file...
+        4. Click '...'
+        5. See error...
+    validations:
+      required: false
+  - type: dropdown
+    attributes:
+      label: Related Areas
+      description: What area of the project does this bug relate to?
+      options:
+        - UI/UX
+        - Frontend/Web
+        - API/Backend
+        - Performance
+        - Security
+        - Documentation
+        - Other
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Possible Solution/Implementation
+      description: |
+        If you have an idea of how to fix this bug, please share it here!
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Additional Information
+      description: |
+        Links? References? Anything that will give us more context about the issue you are encountering!
+
+        Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+    validations:
+      required: false
