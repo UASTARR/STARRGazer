@@ -1,5 +1,5 @@
-# datatypes.py
 # lookup table for all the sensors on the rocket
+# All sensors are placeholders for now, can be updated as we get more info from the firmware team
 # each sensor has an address that gets stamped on every packet so we know who sent what
 # update the addresses once firmware confirms them, everything else should still work
  

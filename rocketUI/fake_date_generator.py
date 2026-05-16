@@ -1,9 +1,6 @@
 import math
 import random
-import threading
 import time
-from flask import Flask, jsonify, render_template
-from flask_cors import CORS
 
 class FakeTelemetry:
     def __init__(self):
@@ -49,88 +46,29 @@ class FakeTelemetry:
         pitch = round(math.sin(self.time_s * 0.3) * 30 + random.uniform(-2, 2), 2)
         yaw = round(math.sin(self.time_s * 0.2) * 60 + random.uniform(-4, 4), 2)
         return roll, pitch, yaw
-    
-    def get_acceleration(self):
-        ax = round(random.uniform(-2, 2), 2)
-        ay = round(random.uniform(-2, 2), 2)
-        az = round(9.8 + random.uniform(-0.5, 0.5), 2)
-        return ax, ay, az
- 
-    def get_magnetometer(self):
-        mx = round(25.0 + math.sin(self.time_s * 0.1) * 2 + random.uniform(-0.5, 0.5), 2)
-        my = round(12.0 + math.cos(self.time_s * 0.1) * 2 + random.uniform(-0.5, 0.5), 2)
-        mz = round(-48.0 + random.uniform(-1, 1), 2)
-        return mx, my, mz
- 
-    def get_quaternion(self):
-        angle = self.time_s * 0.05
-        qw = round(math.cos(angle / 2), 4)
-        qx = round(math.sin(angle / 2) * 0.1, 4)
-        qy = round(math.sin(angle / 2) * 0.2, 4)
-        qz = round(math.sin(angle / 2) * 0.97, 4)
-        return qw, qx, qy, qz
- 
-    def get_strain(self):
-        return round(abs(math.sin(self.time_s * 0.3)) * 500 + random.uniform(-10, 10), 2)
- 
     def generate_all(self):
         self.time_s += 1
         lat, lon = self.get_gps()
         roll, pitch, yaw = self.get_gyro()
-        ax, ay, az = self.get_acceleration()
-        mx, my, mz = self.get_magnetometer()
-        qw, qx, qy, qz = self.get_quaternion()
  
-        # field names match what backend.get_latest() returns
-        # so swapping fake data for real data doesnt break anything
+        # flattened the tuples so field names match what backend.get_latest() returns
         return {
-            "time":          self.time_s,
-            "temperature":   self.get_temperature(),
-            "pressure":      self.get_pressure(),
-            "altitude":      self.get_altitude(),
-            "ground_speed":  self.get_ground_speed(),
-            "lat":           lat,
-            "lon":           lon,
-            "gyroscopex":    roll,
-            "gyroscopey":    pitch,
-            "gyroscopez":    yaw,
-            "accelerationx": ax,
-            "accelerationy": ay,
-            "accelerationz": az,
-            "magnetometerx": mx,
-            "magnetometery": my,
-            "magnetometerz": mz,
-            "quaternionw":   qw,
-            "quaternionx":   qx,
-            "quaterniony":   qy,
-            "quaternionz":   qz,
-            "strain":        self.get_strain(),
+            "time":         self.time_s,
+            "temperature":  self.get_temperature(),
+            "pressure":     self.get_pressure(),
+            "altitude":     self.get_altitude(),
+            "ground_speed": self.get_ground_speed(),
+            "lat":          lat,
+            "lon":          lon,
+            "gyroscopex":   roll,
+            "gyroscopey":   pitch,
+            "gyroscopez":   yaw,
         }
- 
+
  
 # Live test loop
 if __name__ == "__main__":
-    telem = FakeTelemetry()
- 
-    web_telem = FakeTelemetry()
-    web_app = Flask(__name__)
-    CORS(web_app)
- 
-    @web_app.route("/")
-    def home():
-        return render_template("home.html")
- 
-    @web_app.route("/telemetry")
-    def telemetry():
-        return jsonify(web_telem.generate_all())
- 
-    flask_thread = threading.Thread(
-        target=lambda: web_app.run(port=5000, debug=False, use_reloader=False),
-        daemon=True
-    )
-    flask_thread.start()
-    print("dashboard at http://127.0.0.1:5000")
-    print("ctrl+c to stop\n")
+    telem = FakeTelemetry() 
     
     while True:
         data = telem.generate_all()
