@@ -46,23 +46,30 @@ class FakeTelemetry:
         pitch = round(math.sin(self.time_s * 0.3) * 30 + random.uniform(-2, 2), 2)
         yaw = round(math.sin(self.time_s * 0.2) * 60 + random.uniform(-4, 4), 2)
         return roll, pitch, yaw
-
     def generate_all(self):
         self.time_s += 1
+        lat, lon = self.get_gps()
+        roll, pitch, yaw = self.get_gyro()
+ 
+        # flattened the tuples so field names match what backend.get_latest() returns
         return {
-            "time": self.time_s,
-            "temperature": self.get_temperature(),
-            "altitude": self.get_altitude(),
+            "time":         self.time_s,
+            "temperature":  self.get_temperature(),
+            "pressure":     self.get_pressure(),
+            "altitude":     self.get_altitude(),
             "ground_speed": self.get_ground_speed(),
-            "pressure": self.get_pressure(),
-            "gps": self.get_gps(),
-            "gyro": self.get_gyro()
+            "lat":          lat,
+            "lon":          lon,
+            "gyroscopex":   roll,
+            "gyroscopey":   pitch,
+            "gyroscopez":   yaw,
         }
 
-
+ 
 # Live test loop
 if __name__ == "__main__":
-    telem = FakeTelemetry()
+    telem = FakeTelemetry() 
+    
     while True:
         data = telem.generate_all()
         print(data)
